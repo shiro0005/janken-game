@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>じゃんけんゲーム</title>
+  <style>
+    :root {
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+      color: #202124;
+      background: #f4f7fb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .page-shell {
+      width: min(680px, 100%);
+    }
+
+    .game {
+      width: 100%;
+      min-height: 460px;
+      padding: 36px;
+      border-radius: 24px;
+      background: #ffffff;
+      box-shadow: 0 18px 50px rgba(35, 55, 80, 0.14);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: clamp(28px, 5vw, 44px);
+    }
+
+    .description {
+      margin: 0 auto 12px;
+      padding: 0 10px;
+      max-width: 620px;
+      line-height: 1.7;
+      color: #8a929d;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .secret-word {
+      display: inline;
+      font-weight: inherit;
+      cursor: inherit;
+      user-select: text;
+      -webkit-user-select: text;
+      touch-action: auto;
+    }
+
+    .secret-word.holding {
+      transform: none;
+    }
+
+    .outcome.win {
+      color: #188038;
+    }
+
+    .call {
+      min-height: 64px;
+      margin: 20px 0;
+      display: grid;
+      place-items: center;
+      font-size: clamp(34px, 8vw, 64px);
+      font-weight: 800;
+    }
+
+    .start-button,
+    .retry-button {
+      border: 0;
+      border-radius: 14px;
+      padding: 16px 34px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #1a73e8;
+      color: #ffffff;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .start-button:hover,
+    .retry-button:hover,
+    .hand-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+    }
+
+    .choices {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .hand-button {
+      width: 140px;
+      min-height: 150px;
+      border: 2px solid #d7dde6;
+      border-radius: 18px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .hand-button:hover {
+      border-color: #1a73e8;
+      box-shadow: 0 10px 24px rgba(26, 115, 232, 0.14);
+    }
+
+    .hand-icon {
+      display: block;
+      font-size: 66px;
+      line-height: 1.1;
+    }
+
+    .hand-name {
+      display: block;
+      margin-top: 8px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .result-area {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin: 24px 0;
+    }
+
+    .result-card {
+      padding: 20px;
+      border-radius: 18px;
+      background: #f7f9fc;
+    }
+
+    .result-label {
+      margin-bottom: 10px;
+      font-weight: 700;
+      color: #5f6975;
+    }
+
+    .result-icon {
+      font-size: 72px;
+    }
+
+    .result-name {
+      margin-top: 8px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .outcome {
+      margin: 18px 0 24px;
+      font-size: 26px;
+      font-weight: 800;
+      color: #d93025;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 520px) {
+      .game {
+        padding: 26px 18px;
+      }
+
+      .hand-button {
+        width: 110px;
+        min-height: 130px;
+      }
+
+      .hand-icon {
+        font-size: 54px;
+      }
+
+      .result-area {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <p class="description">
+      じゃんけんに勝利せよ。例えば相手がチョキの時に<span id="secretRock" class="secret-word">グー</span>を押していれば勝利となる。
+    </p>
+
+    <main class="game">
+    <section id="startScreen">
+      <h1>じゃんけんゲーム</h1>
+      <button id="startButton" class="start-button" type="button">スタート</button>
+    </section>
+
+    <section id="playScreen" class="hidden">
+      <div id="callText" class="call" aria-live="polite">じゃんけん</div>
+
+      <div id="choices" class="choices hidden" aria-label="自分の手を選択">
+        <button class="hand-button" type="button" data-hand="rock">
+          <span class="hand-icon">✊</span>
+          <span class="hand-name">グー</span>
+        </button>
+
+        <button class="hand-button" type="button" data-hand="scissors">
+          <span class="hand-icon">✌️</span>
+          <span class="hand-name">チョキ</span>
+        </button>
+
+        <button class="hand-button" type="button" data-hand="paper">
+          <span class="hand-icon">✋</span>
+          <span class="hand-name">パー</span>
+        </button>
+      </div>
+
+      <div id="resultArea" class="hidden">
+        <div class="result-area">
+          <article class="result-card">
+            <div class="result-label">あなた</div>
+            <div id="playerIcon" class="result-icon"></div>
+            <div id="playerName" class="result-name"></div>
+          </article>
+
+          <article class="result-card">
+            <div class="result-label">CPU</div>
+            <div id="cpuIcon" class="result-icon"></div>
+            <div id="cpuName" class="result-name"></div>
+          </article>
+        </div>
+
+        <div id="outcome" class="outcome">あなたの負け！</div>
+        <button id="retryButton" class="retry-button" type="button">もう一度</button>
+      </div>
+    </section>
+    </main>
+  </div>
+
+  <script>
+    const hands = {
+      rock: {
+        name: "グー",
+        icon: "✊",
+        cpuCounter: "paper"
+      },
+      scissors: {
+        name: "チョキ",
+        icon: "✌️",
+        cpuCounter: "rock"
+      },
+      paper: {
+        name: "パー",
+        icon: "✋",
+        cpuCounter: "scissors"
+      }
+    };
+
+    const startScreen = document.getElementById("startScreen");
+    const playScreen = document.getElementById("playScreen");
+    const startButton = document.getElementById("startButton");
+    const retryButton = document.getElementById("retryButton");
+    const callText = document.getElementById("callText");
+    const choices = document.getElementById("choices");
+    const resultArea = document.getElementById("resultArea");
+    const playerIcon = document.getElementById("playerIcon");
+    const playerName = document.getElementById("playerName");
+    const cpuIcon = document.getElementById("cpuIcon");
+    const cpuName = document.getElementById("cpuName");
+    const outcome = document.getElementById("outcome");
+    const secretRock = document.getElementById("secretRock");
+
+    let currentCpuHandKey = null;
+    let longPressTimer = null;
+    let secretActivated = false;
+
+    function beginGame() {
+      startScreen.classList.add("hidden");
+      playScreen.classList.remove("hidden");
+      resultArea.classList.add("hidden");
+      choices.classList.add("hidden");
+      callText.textContent = "じゃんけん";
+      outcome.textContent = "あなたの負け！";
+      outcome.classList.remove("win");
+      currentCpuHandKey = null;
+      secretActivated = false;
+      clearTimeout(longPressTimer);
+      secretRock.classList.remove("holding");
+
+      window.setTimeout(() => {
+        choices.classList.remove("hidden");
+      }, 700);
+    }
+
+    function selectHand(playerHandKey) {
+      const playerHand = hands[playerHandKey];
+      const cpuHandKey = playerHand.cpuCounter;
+      const cpuHand = hands[cpuHandKey];
+
+      currentCpuHandKey = cpuHandKey;
+      choices.classList.add("hidden");
+      callText.textContent = "ぽん！";
+
+      playerIcon.textContent = playerHand.icon;
+      playerName.textContent = playerHand.name;
+      cpuIcon.textContent = cpuHand.icon;
+      cpuName.textContent = cpuHand.name;
+
+      window.setTimeout(() => {
+        resultArea.classList.remove("hidden");
+      }, 350);
+    }
+
+    function startSecretLongPress(event) {
+      event.preventDefault();
+
+      if (
+        currentCpuHandKey !== "scissors" ||
+        resultArea.classList.contains("hidden") ||
+        secretActivated
+      ) {
+        return;
+      }
+
+      secretRock.classList.add("holding");
+
+      longPressTimer = window.setTimeout(() => {
+        secretActivated = true;
+        playerIcon.textContent = hands.rock.icon;
+        playerName.textContent = hands.rock.name;
+        outcome.textContent = "あなたの勝ち！";
+        outcome.classList.add("win");
+        secretRock.classList.remove("holding");
+      }, 1500);
+    }
+
+    function cancelSecretLongPress() {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+      secretRock.classList.remove("holding");
+    }
+
+    secretRock.addEventListener("pointerdown", startSecretLongPress);
+    secretRock.addEventListener("pointerup", cancelSecretLongPress);
+    secretRock.addEventListener("pointerleave", cancelSecretLongPress);
+    secretRock.addEventListener("pointercancel", cancelSecretLongPress);
+    secretRock.addEventListener("contextmenu", (event) => event.preventDefault());
+
+    startButton.addEventListener("click", beginGame);
+    retryButton.addEventListener("click", beginGame);
+
+    document.querySelectorAll(".hand-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        selectHand(button.dataset.hand);
+      });
+    });
+  </script>
+</body>
+</html>
