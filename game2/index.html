@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>あるなしクイズ</title>
+  <script>
+    (() => {
+      const localPreview = window.location.protocol === "file:";
+      const unlocked = localPreview || sessionStorage.getItem("game2Unlocked") === "true";
+
+      if (!unlocked) {
+        window.location.replace("../");
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+      color: #202124;
+      background: #f4f7fb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      width: min(980px, 100%);
+      margin: 0 auto;
+    }
+
+    .heading {
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 44px);
+    }
+
+    .instruction {
+      margin: 0;
+      color: #69727d;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .game-panel {
+      position: relative;
+      padding: 26px;
+      border-radius: 24px;
+      background: #ffffff;
+      box-shadow: 0 18px 50px rgba(35, 55, 80, 0.14);
+      overflow: hidden;
+    }
+
+    .zones {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .drop-zone {
+      min-height: 285px;
+      padding: 18px;
+      border: 3px dashed #cbd3df;
+      border-radius: 22px;
+      background: #fafbfd;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    }
+
+    .drop-zone[data-zone="ari"] {
+      border-color: #8bc4a0;
+      background: #f5fbf7;
+    }
+
+    .drop-zone[data-zone="nashi"] {
+      border-color: #e1a5a0;
+      background: #fff8f7;
+    }
+
+    .drop-zone.drag-over {
+      transform: scale(1.01);
+      border-style: solid;
+    }
+
+    .zone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .zone-title {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 0.08em;
+    }
+
+    .zone-count {
+      min-width: 54px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #59636f;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .zone-items {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(86px, 1fr));
+      gap: 12px;
+      min-height: 190px;
+      align-content: start;
+    }
+
+    .piece-field {
+      position: relative;
+      min-height: 260px;
+      margin-top: 26px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 16% 26%, rgba(219, 228, 240, 0.45), transparent 25%),
+        radial-gradient(circle at 80% 68%, rgba(219, 228, 240, 0.45), transparent 27%);
+    }
+
+    .piece-field-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 0;
+      transform: translate(-50%, -50%);
+      color: #d2d8e1;
+      font-size: clamp(20px, 5vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .piece {
+      position: absolute;
+      z-index: 2;
+      width: 86px;
+      height: 86px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #dce2ea;
+      border-radius: 22px;
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(42, 58, 78, 0.12);
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    .piece:hover {
+      box-shadow: 0 12px 24px rgba(42, 58, 78, 0.17);
+    }
+
+    .piece:active,
+    .piece.dragging {
+      cursor: grabbing;
+      box-shadow: 0 18px 34px rgba(42, 58, 78, 0.24);
+      transition: none;
+    }
+
+    .piece-icon {
+      font-size: 50px;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .zone-items .piece {
+      position: relative;
+      inset: auto !important;
+      width: 100%;
+      height: 86px;
+      transform: none !important;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .reset-button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 22px;
+      background: #eef2f7;
+      color: #4f5a67;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .clear-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(244, 247, 251, 0.88);
+      backdrop-filter: blur(5px);
+    }
+
+    .clear-card {
+      width: min(420px, 100%);
+      padding: 36px 28px;
+      border-radius: 24px;
+      background: #ffffff;
+      box-shadow: 0 20px 60px rgba(35, 55, 80, 0.22);
+      text-align: center;
+    }
+
+    .clear-title {
+      margin: 0 0 10px;
+      color: #188038;
+      font-size: clamp(42px, 10vw, 72px);
+    }
+
+    .clear-text {
+      margin: 0 0 22px;
+      color: #5f6975;
+    }
+
+    .clear-button {
+      border: 0;
+      border-radius: 13px;
+      padding: 13px 24px;
+      background: #1a73e8;
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 14px;
+      }
+
+      .game-panel {
+        padding: 16px;
+      }
+
+      .zones {
+        grid-template-columns: 1fr;
+      }
+
+      .drop-zone {
+        min-height: 235px;
+      }
+
+      .zone-items {
+        grid-template-columns: repeat(4, minmax(58px, 1fr));
+        min-height: 90px;
+        gap: 8px;
+      }
+
+      .zone-items .piece {
+        height: 72px;
+        border-radius: 17px;
+      }
+
+      .zone-items .piece-icon {
+        font-size: 40px;
+      }
+
+      .piece-field {
+        min-height: 310px;
+      }
+
+      .piece {
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
+      }
+
+      .piece-icon {
+        font-size: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="heading">
+      <h1>あるなしクイズ</h1>
+      <p class="instruction">8個のイラストを移動し、「ある」と「なし」の枠に4個ずつ配置してください。</p>
+    </header>
+
+    <section class="game-panel" aria-label="あるなしクイズ">
+      <div class="zones">
+        <section class="drop-zone" data-zone="ari">
+          <div class="zone-header">
+            <h2 class="zone-title">ある</h2>
+            <span id="ariCount" class="zone-count">0 / 4</span>
+          </div>
+          <div class="zone-items" data-container="ari"></div>
+        </section>
+
+        <section class="drop-zone" data-zone="nashi">
+          <div class="zone-header">
+            <h2 class="zone-title">なし</h2>
+            <span id="nashiCount" class="zone-count">0 / 4</span>
+          </div>
+          <div class="zone-items" data-container="nashi"></div>
+        </section>
+      </div>
+
+      <div id="pieceField" class="piece-field" aria-label="イラスト置き場">
+        <div class="piece-field-label">イラスト置き場</div>
+
+        <button class="piece" type="button" aria-label="りんご" data-piece="apple"><span class="piece-icon">🍎</span></button>
+        <button class="piece" type="button" aria-label="ねこ" data-piece="cat"><span class="piece-icon">🐈</span></button>
+        <button class="piece" type="button" aria-label="くるま" data-piece="car"><span class="piece-icon">🚗</span></button>
+        <button class="piece" type="button" aria-label="つき" data-piece="moon"><span class="piece-icon">🌙</span></button>
+        <button class="piece" type="button" aria-label="かさ" data-piece="umbrella"><span class="piece-icon">☂️</span></button>
+        <button class="piece" type="button" aria-label="ケーキ" data-piece="cake"><span class="piece-icon">🍰</span></button>
+        <button class="piece" type="button" aria-label="さかな" data-piece="fish"><span class="piece-icon">🐟</span></button>
+        <button class="piece" type="button" aria-label="き" data-piece="tree"><span class="piece-icon">🌳</span></button>
+      </div>
+
+      <div class="controls">
+        <button id="resetButton" class="reset-button" type="button">配置をリセット</button>
+      </div>
+
+      <div id="clearOverlay" class="clear-overlay hidden" aria-live="polite">
+        <div class="clear-card">
+          <h2 class="clear-title">クリア！</h2>
+          <p class="clear-text">「ある」と「なし」に4個ずつ配置できました。</p>
+          <button id="playAgainButton" class="clear-button" type="button">もう一度試す</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const pieceField = document.getElementById("pieceField");
+    const pieces = [...document.querySelectorAll(".piece")];
+    const dropZones = [...document.querySelectorAll(".drop-zone")];
+    const ariContainer = document.querySelector('[data-container="ari"]');
+    const nashiContainer = document.querySelector('[data-container="nashi"]');
+    const ariCount = document.getElementById("ariCount");
+    const nashiCount = document.getElementById("nashiCount");
+    const resetButton = document.getElementById("resetButton");
+    const clearOverlay = document.getElementById("clearOverlay");
+    const playAgainButton = document.getElementById("playAgainButton");
+
+    let dragState = null;
+    let gameCleared = false;
+
+    const desktopPositions = [
+      [5, 10, -7], [25, 3, 5], [47, 15, -3], [74, 5, 8],
+      [12, 58, 6], [35, 67, -8], [59, 54, 4], [82, 64, -5]
+    ];
+
+    const mobilePositions = [
+      [3, 5, -6], [39, 2, 5], [73, 12, -4],
+      [15, 34, 7], [57, 38, -7],
+      [1, 67, 4], [37, 72, -5], [73, 68, 6]
+    ];
+
+    function shuffle(array) {
+      const result = [...array];
+      for (let index = result.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [result[index], result[randomIndex]] = [result[randomIndex], result[index]];
+      }
+      return result;
+    }
+
+    function scatterPieces(moveAllPieces = false) {
+      const compact = window.matchMedia("(max-width: 700px)").matches;
+      const positions = shuffle(compact ? mobilePositions : desktopPositions);
+
+      if (moveAllPieces) {
+        pieces.forEach((piece) => pieceField.appendChild(piece));
+      }
+
+      const fieldPieces = shuffle(
+        pieces.filter((piece) => piece.parentElement === pieceField)
+      );
+
+      fieldPieces.forEach((piece, index) => {
+        const position = positions[index];
+        piece.style.position = "absolute";
+        piece.style.left = `${position[0]}%`;
+        piece.style.top = `${position[1]}%`;
+        piece.style.width = "";
+        piece.style.height = "";
+        piece.style.transform = `rotate(${position[2]}deg)`;
+      });
+    }
+
+    function getZoneContainer(zone) {
+      return zone.querySelector(".zone-items");
+    }
+
+    function updateCounts() {
+      const ariTotal = ariContainer.querySelectorAll(".piece").length;
+      const nashiTotal = nashiContainer.querySelectorAll(".piece").length;
+
+      ariCount.textContent = `${ariTotal} / 4`;
+      nashiCount.textContent = `${nashiTotal} / 4`;
+
+      if (!gameCleared && ariTotal === 4 && nashiTotal === 4) {
+        gameCleared = true;
+        sessionStorage.setItem("game2Completed", "true");
+        window.setTimeout(() => {
+          clearOverlay.classList.remove("hidden");
+        }, 250);
+      }
+    }
+
+    function placeInContainer(piece, container) {
+      container.appendChild(piece);
+      piece.style.position = "relative";
+      piece.style.left = "";
+      piece.style.top = "";
+      piece.style.width = "";
+      piece.style.height = "";
+      piece.style.transform = "none";
+      updateCounts();
+    }
+
+    function returnToField(piece) {
+      pieceField.appendChild(piece);
+      scatterPieces(false);
+      updateCounts();
+    }
+
+    function clearZoneHighlights() {
+      dropZones.forEach((zone) => zone.classList.remove("drag-over"));
+    }
+
+    function getDropZoneAt(clientX, clientY) {
+      const elements = document.elementsFromPoint(clientX, clientY);
+
+      for (const element of elements) {
+        const zone = element.closest?.(".drop-zone");
+        if (zone) {
+          return zone;
+        }
+      }
+
+      return null;
+    }
+
+    function beginDrag(event) {
+      if (gameCleared || event.button !== 0) {
+        return;
+      }
+
+      const piece = event.currentTarget;
+      const rect = piece.getBoundingClientRect();
+
+      event.preventDefault();
+
+      dragState = {
+        piece,
+        pointerId: event.pointerId,
+        offsetX: event.clientX - rect.left,
+        offsetY: event.clientY - rect.top
+      };
+
+      document.body.appendChild(piece);
+      piece.setPointerCapture(event.pointerId);
+      piece.classList.add("dragging");
+      piece.style.position = "fixed";
+      piece.style.left = `${rect.left}px`;
+      piece.style.top = `${rect.top}px`;
+      piece.style.width = `${rect.width}px`;
+      piece.style.height = `${rect.height}px`;
+      piece.style.transform = "none";
+      piece.style.zIndex = "1000";
+    }
+
+    function moveDrag(event) {
+      if (!dragState || event.pointerId !== dragState.pointerId) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const { piece, offsetX, offsetY } = dragState;
+      piece.style.left = `${event.clientX - offsetX}px`;
+      piece.style.top = `${event.clientY - offsetY}px`;
+
+      clearZoneHighlights();
+      const zone = getDropZoneAt(event.clientX, event.clientY);
+      if (zone) {
+        zone.classList.add("drag-over");
+      }
+    }
+
+    function endDrag(event) {
+      if (!dragState || event.pointerId !== dragState.pointerId) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const { piece } = dragState;
+      const zone = getDropZoneAt(event.clientX, event.clientY);
+
+      piece.classList.remove("dragging");
+      piece.style.zIndex = "";
+      clearZoneHighlights();
+      dragState = null;
+
+      if (zone) {
+        const container = getZoneContainer(zone);
+        const currentCount = container.querySelectorAll(".piece").length;
+
+        if (currentCount < 4) {
+          placeInContainer(piece, container);
+          return;
+        }
+      }
+
+      returnToField(piece);
+    }
+
+    function resetGame() {
+      gameCleared = false;
+      clearOverlay.classList.add("hidden");
+      sessionStorage.removeItem("game2Completed");
+      scatterPieces(true);
+      updateCounts();
+    }
+
+    pieces.forEach((piece) => {
+      piece.addEventListener("pointerdown", beginDrag);
+      piece.addEventListener("pointermove", moveDrag);
+      piece.addEventListener("pointerup", endDrag);
+      piece.addEventListener("pointercancel", endDrag);
+      piece.addEventListener("contextmenu", (event) => event.preventDefault());
+    });
+
+    resetButton.addEventListener("click", resetGame);
+    playAgainButton.addEventListener("click", resetGame);
+
+    window.addEventListener("resize", () => {
+      if (!dragState && pieceField.querySelector(".piece")) {
+        scatterPieces(false);
+      }
+    });
+
+    scatterPieces(true);
+    updateCounts();
+  </script>
+</body>
+</html>

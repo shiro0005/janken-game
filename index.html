@@ -69,6 +69,12 @@
       color: #188038;
     }
 
+    .transition-message {
+      margin-top: -10px;
+      color: #5f6975;
+      font-size: 14px;
+    }
+
     .call {
       min-height: 64px;
       margin: 20px 0;
@@ -243,6 +249,7 @@
 
         <div id="outcome" class="outcome">あなたの負け！</div>
         <button id="retryButton" class="retry-button" type="button">もう一度</button>
+        <div id="transitionMessage" class="transition-message hidden">次のゲームへ移動します……</div>
       </div>
     </section>
     </main>
@@ -280,6 +287,9 @@
     const cpuName = document.getElementById("cpuName");
     const outcome = document.getElementById("outcome");
     const secretRock = document.getElementById("secretRock");
+    const transitionMessage = document.getElementById("transitionMessage");
+
+    sessionStorage.removeItem("game2Unlocked");
 
     let currentCpuHandKey = null;
     let longPressTimer = null;
@@ -297,6 +307,8 @@
       secretActivated = false;
       clearTimeout(longPressTimer);
       secretRock.classList.remove("holding");
+      retryButton.classList.remove("hidden");
+      transitionMessage.classList.add("hidden");
 
       window.setTimeout(() => {
         choices.classList.remove("hidden");
@@ -342,6 +354,13 @@
         outcome.textContent = "あなたの勝ち！";
         outcome.classList.add("win");
         secretRock.classList.remove("holding");
+        retryButton.classList.add("hidden");
+        transitionMessage.classList.remove("hidden");
+        sessionStorage.setItem("game2Unlocked", "true");
+
+        window.setTimeout(() => {
+          window.location.href = "./game2/";
+        }, 1800);
       }, 1500);
     }
 
