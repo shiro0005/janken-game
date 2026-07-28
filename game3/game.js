@@ -7,7 +7,7 @@
       e4:{number:4,clue:"こえを売る仕事",answer:"せいゆう",cells:[[4,2],[5,2],[6,2],[7,2]]},
       e5:{number:5,clue:"こけしそのもの",answer:"こけし",cells:[[3,3],[4,3],[5,3]]}
     }},
-    {rows:9,cols:7,entries:{
+    {rows:9,cols:8,entries:{
       e1:{number:1,clue:"えで物語を伝えるもの",answer:"かみしばい",cells:[[4,2],[4,3],[4,4],[4,5],[4,6]]},
       e2:{number:2,clue:"けが生える場所",answer:"うで",cells:[[3,7],[4,7]]},
       e3:{number:3,clue:"てを使う武道",answer:"けんぽう",cells:[[3,4],[3,5],[3,6],[3,7]]},
