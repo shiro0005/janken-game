@@ -1,32 +1,65 @@
 (() => {
+  const removedCharacter = "し";
+  const specialId = "e1";
+
   const shape = {
     rows: 7,
     cols: 7,
     cells: {
-      e1: [[3, 3], [4, 3], [5, 3], [6, 3]],
-      e2: [[2, 5], [2, 6]],
-      e3: [[4, 2], [4, 3], [4, 4], [4, 5]],
-      e4: [[1, 5], [2, 5], [3, 5], [4, 5]],
-      e5: [[0, 6], [1, 6], [2, 6]]
+      e1: [[3, 2], [3, 3], [3, 4]],
+      e2: [[3, 2], [4, 2], [5, 2]],
+      e3: [[3, 3], [4, 3]],
+      e4: [[3, 4], [4, 4], [5, 4]],
+      e5: [[4, 4], [4, 5]]
     }
   };
 
   const stages = [
     {
-      e1: { number: 1, clue: "こえで知らせるもの", answer: "でんごん" },
-      e2: { number: 2, clue: "海にあり、こいしより大きいもの", answer: "いし" },
-      e3: { number: 3, clue: "こてを使う武道", answer: "けんどう" },
-      e4: { number: 4, clue: "こえを売る仕事", answer: "せいゆう" },
-      e5: { number: 5, clue: "こしがなく、手足もない郷土人形", answer: "こけし" }
+      e1: { number: 1, clue: "棒で打つとしなるもの", answer: "しない" },
+      e2: { number: 2, clue: "すしの主な中身", answer: "しゃり" },
+      e3: { number: 3, clue: "しきものを作るとき、材料をつなぐもの", answer: "なわ" },
+      e4: { number: 4, clue: "すしの材料になる小さなもの", answer: "いくら" },
+      e5: { number: 5, clue: "二文字で、木でできていて、しろの中にあるもの", answer: "くら" }
     },
     {
-      e1: { number: 1, clue: "えで知らせるもの", answer: "かんばん" },
-      e2: { number: 2, clue: "海にあり、いしより大きいもの", answer: "しま" },
-      e3: { number: 3, clue: "てを使う武道", answer: "けんぽう" },
-      e4: { number: 4, clue: "えを売る仕事", answer: "がしょう" },
-      e5: { number: 5, clue: "しがなく、手足もない郷土人形", answer: "だるま" }
+      e1: { number: 1, clue: "棒で打つとなるもの", answer: "たいこ" },
+      e2: { number: 2, clue: "すの主な中身", answer: "たまご" },
+      e3: { number: 3, clue: "きものを作るとき、材料をつなぐもの", answer: "いと" },
+      e4: { number: 4, clue: "すの材料になる小さなもの", answer: "こえだ" },
+      e5: { number: 5, clue: "二文字で、木でできていて、ろの中にあるもの", answer: "えだ" }
     }
   ];
+
+  function verifyPuzzleDefinition() {
+    for (const id of Object.keys(shape.cells)) {
+      const first = stages[0][id];
+      const second = stages[1][id];
+      const positions = shape.cells[id];
+
+      if (first.clue.split(removedCharacter).join("") !== second.clue) {
+        throw new Error(`${id}: カギから「${removedCharacter}」を消した結果が一致しません`);
+      }
+      if (Array.from(first.answer).length !== positions.length || Array.from(second.answer).length !== positions.length) {
+        throw new Error(`${id}: 答えの文字数とマス数が一致しません`);
+      }
+    }
+
+    for (const stage of stages) {
+      const values = new Map();
+      for (const [id, entry] of Object.entries(stage)) {
+        Array.from(entry.answer).forEach((character, index) => {
+          const key = shape.cells[id][index].join("-");
+          if (values.has(key) && values.get(key) !== character) {
+            throw new Error(`${key}: 交差する文字が一致しません`);
+          }
+          values.set(key, character);
+        });
+      }
+    }
+  }
+
+  verifyPuzzleDefinition();
 
   let stageIndex = 0;
   let entries = stages[stageIndex];
@@ -83,7 +116,7 @@
     for (const id of Object.keys(entries)) {
       const entry = entries[id];
       const figure = document.createElement("figure");
-      figure.className = `image-card ${id}${id === "e5" ? " secret" : ""}`;
+      figure.className = `image-card ${id}${id === specialId ? " secret" : ""}`;
       figure.innerHTML = `
         <div class="image-frame">
           <img alt="" decoding="async" referrerpolicy="no-referrer">
@@ -106,7 +139,7 @@
       });
     }
 
-    cards.get("e5").image.addEventListener("click", activateStage2);
+    cards.get(specialId).image.addEventListener("click", activateStage2);
   }
 
   function renderBoard() {
@@ -121,7 +154,9 @@
     for (const id of Object.keys(shape.cells)) {
       const positions = shape.cells[id];
       positions.forEach(([row, column]) => active.add(`${row}-${column}`));
-      numbers.set(positions[0].join("-"), entries[id].number);
+      const startKey = positions[0].join("-");
+      if (!numbers.has(startKey)) numbers.set(startKey, []);
+      numbers.get(startKey).push(entries[id].number);
     }
 
     for (let row = 0; row < shape.rows; row += 1) {
@@ -134,7 +169,7 @@
           if (numbers.has(key)) {
             const number = document.createElement("span");
             number.className = "cell-number";
-            number.textContent = numbers.get(key);
+            number.textContent = numbers.get(key).join("/");
             element.appendChild(number);
           }
           const letter = document.createElement("span");
@@ -195,14 +230,14 @@
     const correct = allCorrect();
     const filled = [...inputs].every(([id, input]) => clean(input.value).length === entries[id].answer.length);
     status.classList.toggle("clear", correct && stageIndex === 1);
-    cards.get("e5").image.title = correct && stageIndex === 0 ? "クリック" : "";
+    cards.get(specialId).image.title = correct && stageIndex === 0 ? "クリック" : "";
 
     if (correct) {
       status.textContent = stageIndex === 0
         ? "クロスワードは完成しました。ただし、まだ終わりではありません。"
-        : "クリア！ 『こ』が消えた後のクロスワードも完成です。";
+        : "クリア！ 『し』が消えた後のクロスワードも完成です。";
     } else if (stageIndex === 1) {
-      status.textContent = "『こ』が消えたカギで、同じ形のクロスワードを完成させてください。";
+      status.textContent = "『し』が消えたカギで、同じ形のクロスワードを完成させてください。";
     } else if (filled) {
       status.textContent = "交差する文字や答えをもう一度確認してください。";
     } else {
@@ -296,7 +331,7 @@
     window.clearWordImageCache();
     renderClues();
     clearAll(false);
-    status.textContent = "カギから『こ』が消えました。パズルの形はそのままで、答えが変わっています。";
+    status.textContent = "カギから『し』が消えました。パズルの形はそのままで、答えが変わっています。";
     inputs.get("e1")?.focus();
   }
 
