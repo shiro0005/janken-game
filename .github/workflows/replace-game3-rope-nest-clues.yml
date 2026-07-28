@@ -1,0 +1,72 @@
+name: Replace game3 rope and nest clues
+
+on:
+  push:
+    paths:
+      - .github/workflows/replace-game3-rope-nest-clues.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-game3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace puzzle definition
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path("game3/game.js")
+          text = path.read_text(encoding="utf-8")
+
+          replacement = '''  const shape = {
+    rows: 6,
+    cols: 8,
+    cells: {
+      e1: [[2, 2], [2, 3], [2, 4]],
+      e2: [[2, 2], [3, 2], [4, 2]],
+      e3: [[5, 5], [5, 6], [5, 7]],
+      e4: [[5, 5], [4, 5], [3, 5], [2, 5]],
+      e5: [[0, 6], [0, 7]]
+    }
+  };
+
+  const stages = [
+    {
+      e1: { number: 1, clue: "三文字で、棒で打つとしなるもの", answer: "しない" },
+      e2: { number: 2, clue: "三文字で、しろの上に置くもの", answer: "しゃち" },
+      e3: { number: 3, clue: "三文字で、食事に使うはし", answer: "おはし" },
+      e4: { number: 4, clue: "四文字で、寝るときに使うしきもの", answer: "おふとん" },
+      e5: { number: 5, clue: "二文字で、しろの上にあるもの", answer: "やね" }
+    },
+    {
+      e1: { number: 1, clue: "三文字で、棒で打つとなるもの", answer: "たいこ" },
+      e2: { number: 2, clue: "三文字で、ろの上に置くもの", answer: "たきぎ" },
+      e3: { number: 3, clue: "三文字で、食事に使うは", answer: "おくば" },
+      e4: { number: 4, clue: "四文字で、寝るときに使うきもの", answer: "おねまき" },
+      e5: { number: 5, clue: "二文字で、ろの上にあるもの", answer: "なべ" }
+    }
+  ];'''
+
+          pattern = re.compile(r"  const shape = \{[\s\S]*?\n  \};\n\n  const stages = \[[\s\S]*?\n  \];")
+          text, count = pattern.subn(lambda match: replacement, text, count=1)
+          if count != 1:
+              raise SystemExit("shape/stages block not found")
+
+          path.write_text(text, encoding="utf-8")
+          PY
+
+          node --check game3/game.js
+
+      - name: Commit update
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game3/game.js
+          git commit -m "Replace rope and nest clues with natural transformations"
+          git push
