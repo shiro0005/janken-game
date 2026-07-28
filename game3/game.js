@@ -1,0 +1,36 @@
+(() => {
+  const stages=[
+    {rows:9,cols:9,entries:{
+      e1:{number:1,clue:"こえで物語を伝えるもの",answer:"ろうどく",cells:[[2,6],[3,6],[4,6],[5,6]]},
+      e2:{number:2,clue:"こけが生えるところ",answer:"いし",cells:[[5,3],[5,4]]},
+      e3:{number:3,clue:"こてを使う武道",answer:"けんどう",cells:[[4,4],[4,5],[4,6],[4,7]]},
+      e4:{number:4,clue:"こものを入れるもの",answer:"いれもの",cells:[[5,3],[6,3],[7,3],[8,3]]},
+      e5:{number:5,clue:"こけしそのもの",answer:"こけし",cells:[[3,4],[4,4],[5,4]]}
+    }},
+    {rows:9,cols:7,entries:{
+      e1:{number:1,clue:"えで物語を伝えるもの",answer:"かみしばい",cells:[[4,2],[4,3],[4,4],[4,5],[4,6]]},
+      e2:{number:2,clue:"けが生えるところ",answer:"あし",cells:[[7,0],[7,1]]},
+      e3:{number:3,clue:"てを使う武道",answer:"けんぽう",cells:[[6,1],[6,2],[6,3],[6,4]]},
+      e4:{number:4,clue:"ものを入れるもの",answer:"かばん",cells:[[4,2],[5,2],[6,2]]},
+      e5:{number:5,clue:"けしそのもの",answer:"けし",cells:[[6,1],[7,1]]}
+    }}
+  ];
+  let stageIndex=0,entries=stages[0].entries;
+  const left=document.getElementById("leftClues"),right=document.getElementById("rightClues"),board=document.getElementById("crossword"),stageEl=document.getElementById("crosswordStage"),status=document.getElementById("status"),reset=document.getElementById("resetButton");
+  const inputs=new Map(),cards=new Map(),cells=new Map(),searches=new Map();
+  const clean=v=>Array.from(String(v||"").replace(/[\s　]/g,""));
+
+  function clueHtml(id){const e=entries[id];return `<div class="clue"><label class="clue-label" for="${id}"><span class="clue-number">${e.number}</span>${e.clue}</label><div class="answer-wrap"><input id="${id}" class="answer-input" autocomplete="off" maxlength="${e.answer.length}"><span id="count-${id}" class="char-count">0/${e.answer.length}</span></div></div>`}
+  function renderClues(){left.innerHTML=["e1","e3","e5"].map(clueHtml).join("");right.innerHTML=["e2","e4"].map(clueHtml).join("");inputs.clear();for(const id of Object.keys(entries)){const input=document.getElementById(id);inputs.set(id,input);input.addEventListener("input",e=>{refresh();if(!e.isComposing)scheduleImage(id)});input.addEventListener("compositionend",()=>{refresh();scheduleImage(id)})}}
+  function renderCards(){if(cards.size)return;for(const id of Object.keys(entries)){const e=entries[id],fig=document.createElement("figure");fig.className=`image-card ${id}${id==="e5"?" secret":""}`;fig.innerHTML=`<div class="image-frame"><img alt="" decoding="async" referrerpolicy="no-referrer"><span class="image-placeholder">${e.answer.length}文字で表示</span><span class="spinner"></span></div><figcaption><span class="clue-number">${e.number}</span><span class="image-word">未入力</span><a class="image-source" target="_blank" rel="noopener noreferrer" hidden>出典</a></figcaption>`;stageEl.appendChild(fig);cards.set(id,{fig,img:fig.querySelector("img"),placeholder:fig.querySelector(".image-placeholder"),word:fig.querySelector(".image-word"),source:fig.querySelector("a")})}cards.get("e5").img.addEventListener("click",activateStage2)}
+  function renderBoard(){const s=stages[stageIndex];board.replaceChildren();cells.clear();board.style.gridTemplateColumns=`repeat(${s.cols},minmax(36px,50px))`;board.style.gridTemplateRows=`repeat(${s.rows},minmax(36px,50px))`;const active=new Set(),numbers=new Map();for(const e of Object.values(entries)){for(const [r,c] of e.cells)active.add(`${r}-${c}`);const k=e.cells[0].join("-");if(!numbers.has(k))numbers.set(k,[]);numbers.get(k).push(e.number)}for(let r=0;r<s.rows;r++)for(let c=0;c<s.cols;c++){const k=`${r}-${c}`,el=document.createElement("div");el.className=active.has(k)?"cell":"cell block";if(active.has(k)){if(numbers.has(k)){const n=document.createElement("span");n.className="cell-number";n.textContent=numbers.get(k).join("/");el.appendChild(n)}const l=document.createElement("span");el.appendChild(l);cells.set(k,{el,l})}board.appendChild(el)}}
+  function updateBoard(){const map=new Map();for(const [id,e] of Object.entries(entries)){const chars=clean(inputs.get(id)?.value);e.cells.forEach((p,i)=>{const ch=chars[i];if(!ch)return;const k=p.join("-");if(!map.has(k))map.set(k,[]);map.get(k).push(ch)})}for(const [k,{el,l}] of cells){const values=[...new Set(map.get(k)||[])];el.classList.toggle("conflict",values.length>1);l.textContent=values.length===0?"":values.length===1?values[0]:"？"}}
+  function allCorrect(){return Object.entries(entries).every(([id,e])=>clean(inputs.get(id)?.value).join("")===e.answer)}
+  function refresh(){for(const [id,input] of inputs){const e=entries[id],chars=clean(input.value);if(chars.length>e.answer.length)input.value=chars.slice(0,e.answer.length).join("");const now=clean(input.value),filled=now.length===e.answer.length,ok=now.join("")===e.answer;document.getElementById(`count-${id}`).textContent=`${now.length}/${e.answer.length}`;input.classList.toggle("complete",filled&&ok);input.classList.toggle("wrong",filled&&!ok)}updateBoard();const ok=allCorrect(),filled=[...inputs].every(([id,i])=>clean(i.value).length===entries[id].answer.length);status.classList.toggle("clear",ok&&stageIndex===1);cards.get("e5").img.title=ok&&stageIndex===0?"クリック":"";status.textContent=ok?(stageIndex===0?"クロスワードは完成しました。ただし、まだ終わりではありません。":"クリア！ 『こ』が消えた後の別のクロスワードも完成です。"):(stageIndex===1?"『こ』が消えたカギで、別のクロスワードを完成させてください。":filled?"交差する文字や答えをもう一度確認してください。":"カギの入力欄は、指定された文字数まで入力できます。")}
+  function cancel(id){const s=searches.get(id);if(!s)return;clearTimeout(s.timer);s.controller?.abort();searches.delete(id)}
+  function emptyCard(id){const c=cards.get(id),e=entries[id];c.fig.classList.remove("loading","ready");c.img.removeAttribute("src");c.placeholder.textContent=`${e.answer.length}文字で表示`;c.word.textContent="未入力";c.source.hidden=true}
+  function scheduleImage(id){cancel(id);const e=entries[id],query=clean(inputs.get(id).value).join("");if(query.length!==e.answer.length){emptyCard(id);return}const state={timer:0,controller:null};searches.set(id,state);state.timer=setTimeout(async()=>{const c=cards.get(id);c.fig.classList.remove("ready");c.fig.classList.add("loading");c.word.textContent=query;state.controller=new AbortController();try{const result=await window.findWordImage(query,e.clue,state.controller.signal);if(searches.get(id)!==state)return;c.fig.classList.remove("loading");if(!result){c.placeholder.textContent="画像なし";return}c.img.onload=()=>c.fig.classList.add("ready");c.img.onerror=()=>{c.fig.classList.remove("ready");c.placeholder.textContent="読込失敗"};c.img.src=result.imageUrl;c.img.alt=`${query}の検索画像`;c.source.href=result.pageUrl;c.source.textContent=result.sourceName;c.source.hidden=false}catch{if(searches.get(id)===state){c.fig.classList.remove("loading");c.placeholder.textContent="画像なし"}}finally{if(searches.get(id)===state)searches.delete(id)}},500)}
+  function clearAll(focus=true){for(const [id,input] of inputs){cancel(id);input.value="";emptyCard(id)}refresh();if(focus)inputs.get("e1")?.focus()}
+  function activateStage2(){if(stageIndex!==0||!allCorrect())return;stageIndex=1;entries=stages[1].entries;window.clearWordImageCache();renderClues();renderBoard();clearAll(false);status.textContent="カギから『こ』が消え、答えと盤面が変わりました。もう一度解いてください。";inputs.get("e1")?.focus()}
+  reset.addEventListener("click",()=>clearAll());renderClues();renderCards();renderBoard();refresh();inputs.get("e1")?.focus();
+})();
