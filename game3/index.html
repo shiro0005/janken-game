@@ -11,7 +11,7 @@ const unlocked = localPreview || sessionStorage.getItem("game3Unlocked") === "tr
 if (!unlocked) window.location.replace("../");
 })();
 </script>
-<style>:root{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",system-ui,sans-serif;color:#202124;background:#f4f7fb;}*{box-sizing:border-box;}body{margin:0;min-height:100vh;padding:24px;}button,input{font:inherit;}.page{width:min(1220px,100%);margin:0 auto;}.heading{margin-bottom:20px;text-align:center;}h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px);}.instruction,.status{margin:0;color:#69727d;font-size:14px;line-height:1.65;}.game-panel{padding:24px;border-radius:24px;background:#fff;box-shadow:0 18px 50px rgba(35,55,80,0.14);}.layout{display:grid;grid-template-columns:minmax(220px,1fr) minmax(500px,560px) minmax(220px,1fr);gap:24px;align-items:start;}.clue-panel{min-width:0;padding:18px;border:1px solid #dde3ec;border-radius:18px;background:#fafbfd;}.clue-panel h2{margin:0 0 14px;font-size:24px;}.clue-list{display:grid;gap:14px;}.clue{padding-bottom:14px;border-bottom:1px solid #e3e7ed;}.clue:last-child{padding-bottom:0;border-bottom:0;}.clue-label{display:block;margin-bottom:8px;line-height:1.55;}.clue-number{display:inline-grid;place-items:center;min-width:26px;height:26px;margin-right:6px;padding:0 5px;border-radius:999px;background:#e8eef7;font-weight:800;}.answer-wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;}.answer-input{width:100%;min-width:0;padding:10px 12px;border:2px solid #cfd7e3;border-radius:12px;background:#fff;font-size:18px;}.answer-input:focus{border-color:#4b7bec;outline:3px solid rgba(75,123,236,0.18);}.answer-input.complete{border-color:#5aa96f;background:#f5fbf7;}.answer-input.wrong{border-color:#d66b62;background:#fff8f7;}.char-count{min-width:44px;color:#69727d;font-size:13px;text-align:right;}.board-area{display:grid;justify-items:center;gap:14px;}.board-title{margin:0;color:#5f6975;font-size:18px;}.crossword-stage{display:grid;grid-template-columns:104px auto 104px;grid-template-rows:118px auto 118px;gap:10px;width:min(100%,560px);align-items:center;justify-items:center;}.crossword{grid-column:2;grid-row:2;z-index:2;display:grid;grid-template-columns:repeat(5,minmax(44px,58px));grid-template-rows:repeat(6,minmax(44px,58px));gap:3px;padding:10px;border-radius:16px;background:#263238;}.cell{position:relative;display:grid;place-items:center;border-radius:5px;background:#fff;font-size:clamp(22px,4vw,31px);font-weight:800;line-height:1;}.cell.block{background:#263238;}.cell.conflict{background:#ffe2df;color:#b3261e;}.cell-number{position:absolute;top:3px;left:4px;color:#59636f;font-size:10px;font-weight:800;line-height:1;}.image-card{z-index:3;width:104px;margin:0;padding:6px;border:1px solid #d9e0e9;border-radius:14px;background:#fff;box-shadow:0 8px 20px rgba(35,55,80,0.12);overflow:hidden;}.image-card.across1{grid-column:2;grid-row:1;}.image-card.down1{grid-column:1;grid-row:2;align-self:start;margin-top:5px;}.image-card.across2{grid-column:3;grid-row:2;align-self:start;margin-top:58px;}.image-card.down2{grid-column:3;grid-row:2;align-self:end;margin-bottom:6px;}.image-card.across3{grid-column:2;grid-row:3;}.image-frame{width:90px;height:68px;display:grid;place-items:center;border-radius:10px;background:#eef2f7;overflow:hidden;}.image-frame img{display:none;width:100%;height:100%;object-fit:contain;background:#fff;}.image-card.ready img{display:block;}.image-placeholder{padding:5px;color:#788390;font-size:12px;font-weight:800;text-align:center;}.image-card.ready .image-placeholder,.image-card.loading .image-placeholder{display:none;}.image-spinner{display:none;width:24px;height:24px;border:3px solid rgba(75,123,236,0.2);border-top-color:#4b7bec;border-radius:50%;animation:image-spin .75s linear infinite;}.image-card.loading .image-spinner{display:block;}@keyframes image-spin{to{transform:rotate(360deg);}}.image-card figcaption{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px;align-items:center;margin-top:5px;font-size:11px;}.image-word{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800;}.image-source{grid-column:1 / -1;justify-self:end;color:#4b66a5;font-size:10px;text-decoration:none;}.image-source:hover{text-decoration:underline;}.status{min-height:24px;text-align:center;}.status.clear{color:#188038;font-weight:800;}.controls{display:flex;justify-content:center;margin-top:22px;}.reset-button{border:0;border-radius:12px;padding:11px 22px;background:#eef2f7;color:#4f5a67;font-weight:700;cursor:pointer;}@media (max-width:1080px){.layout{grid-template-columns:1fr 1fr;}.board-area{grid-column:1 / -1;grid-row:1;}}@media (max-width:620px){body{padding:14px;}.game-panel{padding:16px;}.layout{grid-template-columns:1fr;}.board-area{grid-column:auto;grid-row:auto;}.crossword-stage{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto;width:100%;}.crossword{grid-column:1 / -1;grid-row:1;grid-template-columns:repeat(5,minmax(42px,54px));grid-template-rows:repeat(6,minmax(42px,54px));}.image-card{width:100%;display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;align-items:center;}.image-frame{width:76px;height:62px;}.image-card.across1,.image-card.down1,.image-card.across2,.image-card.down2,.image-card.across3{grid-column:auto;grid-row:auto;align-self:auto;margin:0;}.image-card.across1,.image-card.across2{grid-column:1;}.image-card.down1,.image-card.down2{grid-column:2;}.image-card.across3{grid-column:1 / -1;width:calc(50% - 5px);justify-self:center;}.image-card figcaption{margin:0;}}@media (max-width:370px){.crossword{grid-template-columns:repeat(5,40px);grid-template-rows:repeat(6,40px);gap:2px;padding:7px;}}</style>
+<style>:root{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",system-ui,sans-serif;color:#202124;background:#f4f7fb;}*{box-sizing:border-box;}body{margin:0;min-height:100vh;padding:24px;}button,input{font:inherit;}.page{width:min(1220px,100%);margin:0 auto;}.heading{margin-bottom:20px;text-align:center;}h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px);}.instruction,.status{margin:0;color:#69727d;font-size:14px;line-height:1.65;}.game-panel{padding:24px;border-radius:24px;background:#fff;box-shadow:0 18px 50px rgba(35,55,80,0.14);}.layout{display:grid;grid-template-columns:minmax(220px,1fr) minmax(500px,560px) minmax(220px,1fr);gap:24px;align-items:start;}.clue-panel{min-width:0;padding:18px;border:1px solid #dde3ec;border-radius:18px;background:#fafbfd;}.clue-panel h2{margin:0 0 14px;font-size:24px;}.clue-list{display:grid;gap:14px;}.clue{padding-bottom:14px;border-bottom:1px solid #e3e7ed;}.clue:last-child{padding-bottom:0;border-bottom:0;}.clue-label{display:block;margin-bottom:8px;line-height:1.55;}.clue-number{display:inline-grid;place-items:center;min-width:26px;height:26px;margin-right:6px;padding:0 5px;border-radius:999px;background:#e8eef7;font-weight:800;}.answer-wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;}.answer-input{width:100%;min-width:0;padding:10px 12px;border:2px solid #cfd7e3;border-radius:12px;background:#fff;font-size:18px;}.answer-input:focus{border-color:#4b7bec;outline:3px solid rgba(75,123,236,0.18);}.answer-input.complete{border-color:#5aa96f;background:#f5fbf7;}.answer-input.wrong{border-color:#d66b62;background:#fff8f7;}.char-count{min-width:44px;color:#69727d;font-size:13px;text-align:right;}.board-area{display:grid;justify-items:center;gap:14px;}.board-title{margin:0;color:#5f6975;font-size:18px;}.crossword-stage{display:grid;grid-template-columns:104px auto 104px;grid-template-rows:118px auto 118px;gap:10px;width:min(100%,560px);align-items:center;justify-items:center;}.crossword{grid-column:2;grid-row:2;z-index:2;display:grid;grid-template-columns:repeat(5,minmax(44px,58px));grid-template-rows:repeat(6,minmax(44px,58px));gap:3px;padding:10px;border-radius:16px;background:#263238;}.cell{position:relative;display:grid;place-items:center;border-radius:5px;background:#fff;font-size:clamp(22px,4vw,31px);font-weight:800;line-height:1;}.cell.block{background:#263238;}.cell.conflict{background:#ffe2df;color:#b3261e;}.cell-number{position:absolute;top:3px;left:4px;color:#59636f;font-size:10px;font-weight:800;line-height:1;}.image-card{z-index:3;width:104px;margin:0;padding:6px;border:1px solid #d9e0e9;border-radius:14px;background:#fff;box-shadow:0 8px 20px rgba(35,55,80,0.12);overflow:hidden;}.image-card.across1{grid-column:2;grid-row:1;}.image-card.down1{grid-column:1;grid-row:2;align-self:start;margin-top:5px;}.image-card.across2{grid-column:3;grid-row:2;align-self:start;margin-top:58px;}.image-card.down2{grid-column:3;grid-row:2;align-self:end;margin-bottom:6px;}.image-card.across3{grid-column:2;grid-row:3;}.image-frame{width:90px;height:68px;display:grid;place-items:center;border-radius:10px;background:#eef2f7;overflow:hidden;}.image-frame img{display:none;width:100%;height:100%;object-fit:contain;background:#fff;}.image-card.ready img{display:block;}.image-card.secret-target.ready img{cursor:pointer;}.image-placeholder{padding:5px;color:#788390;font-size:12px;font-weight:800;text-align:center;}.image-card.ready .image-placeholder,.image-card.loading .image-placeholder{display:none;}.image-spinner{display:none;width:24px;height:24px;border:3px solid rgba(75,123,236,0.2);border-top-color:#4b7bec;border-radius:50%;animation:image-spin .75s linear infinite;}.image-card.loading .image-spinner{display:block;}@keyframes image-spin{to{transform:rotate(360deg);}}.image-card figcaption{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px;align-items:center;margin-top:5px;font-size:11px;}.image-word{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800;}.image-source{grid-column:1 / -1;justify-self:end;color:#4b66a5;font-size:10px;text-decoration:none;}.image-source:hover{text-decoration:underline;}.status{min-height:24px;text-align:center;}.status.clear{color:#188038;font-weight:800;}.controls{display:flex;justify-content:center;margin-top:22px;}.reset-button{border:0;border-radius:12px;padding:11px 22px;background:#eef2f7;color:#4f5a67;font-weight:700;cursor:pointer;}@media (max-width:1080px){.layout{grid-template-columns:1fr 1fr;}.board-area{grid-column:1 / -1;grid-row:1;}}@media (max-width:620px){body{padding:14px;}.game-panel{padding:16px;}.layout{grid-template-columns:1fr;}.board-area{grid-column:auto;grid-row:auto;}.crossword-stage{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto;width:100%;}.crossword{grid-column:1 / -1;grid-row:1;grid-template-columns:repeat(5,minmax(42px,54px));grid-template-rows:repeat(6,minmax(42px,54px));}.image-card{width:100%;display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;align-items:center;}.image-frame{width:76px;height:62px;}.image-card.across1,.image-card.down1,.image-card.across2,.image-card.down2,.image-card.across3{grid-column:auto;grid-row:auto;align-self:auto;margin:0;}.image-card.across1,.image-card.across2{grid-column:1;}.image-card.down1,.image-card.down2{grid-column:2;}.image-card.across3{grid-column:1 / -1;width:calc(50% - 5px);justify-self:center;}.image-card figcaption{margin:0;}}@media (max-width:370px){.crossword{grid-template-columns:repeat(5,40px);grid-template-rows:repeat(6,40px);gap:2px;padding:7px;}}</style>
 </head>
 <body>
 <main class="page">
@@ -94,36 +94,36 @@ const entries = {
 across1: {
 number: 1,
 direction: "across",
-clue: "春に咲く代表的な花",
-answer: "さくら",
+clue: "キャンプで木を燃やして作る火。こ",
+answer: "たきび",
 cells: [[0, 1], [0, 2], [0, 3]]
 },
 down1: {
 number: 2,
 direction: "down",
-clue: "道路を走る乗り物",
-answer: "くるま",
+clue: "森で見つかる、かさの形をした食べ物。こ",
+answer: "きのこ",
 cells: [[0, 2], [1, 2], [2, 2]]
 },
 across2: {
 number: 3,
 direction: "across",
-clue: "寿司や刺身で人気の赤身魚",
-answer: "まぐろ",
+clue: "東北の土産として有名な木の人形。こ",
+answer: "こけし",
 cells: [[2, 2], [2, 3], [2, 4]]
 },
 down2: {
 number: 4,
 direction: "down",
-clue: "火をつけて明かりにするもの",
-answer: "ろうそく",
+clue: "カメラで記録するもの。こ",
+answer: "しゃしん",
 cells: [[2, 4], [3, 4], [4, 4], [5, 4]]
 },
 across3: {
 number: 5,
 direction: "across",
-clue: "牛乳を表す外来語",
-answer: "みるく",
+clue: "オレンジ色で甘い冬の果物。こ",
+answer: "みかん",
 cells: [[5, 2], [5, 3], [5, 4]]
 }
 };
@@ -146,6 +146,30 @@ const cellElements = new Map();
 const imageCards = new Map();
 const searchCache = new Map();
 const searchStates = new Map();
+const secretShift = {
+active: false,
+entryId: "across2",
+character: "こ"
+};
+Object.values(entries).forEach(entry => {
+entry.baseClue = entry.clue;
+});
+function renderClues() {
+Object.entries(entries).forEach(([entryId, entry]) => {
+entry.clue = secretShift.active
+? entry.baseClue.split(secretShift.character).join("")
+: entry.baseClue;
+const label = document.querySelector(`label[for="${entryId}"]`);
+if (!label) return;
+label.innerHTML = `<span class="clue-number">${entry.number}</span>${entry.clue}`;
+});
+}
+function allAnswersCorrect() {
+return inputs.every(input => {
+const entry = entries[input.dataset.entry];
+return normalizeText(input.value).join("") === entry.answer;
+});
+}
 Object.values(entries).forEach(entry => {
 entry.cells.forEach(([row, column]) => activeCells.add(`${row}-${column}`));
 });
@@ -197,6 +221,19 @@ word: figure.querySelector(".image-word"),
 source: figure.querySelector(".image-source")
 });
 });
+const secretCard = imageCards.get(secretShift.entryId);
+if (secretCard) {
+secretCard.figure.classList.add("secret-target");
+secretCard.image.addEventListener("click", () => {
+if (secretShift.active || !allAnswersCorrect()) return;
+secretShift.active = true;
+searchCache.clear();
+renderClues();
+clearAllInputs(false);
+status.textContent = "文字がひとつ消えました。もう一度クロスワードを解いてください。";
+inputs[0].focus();
+});
+}
 function normalizeText(value) {
 return Array.from(value.replace(/[\s　]/g, ""));
 }
@@ -243,13 +280,14 @@ const allFilled = inputs.every(input => {
 const entry = entries[input.dataset.entry];
 return normalizeText(input.value).length === entry.answer.length;
 });
-const allCorrect = inputs.every(input => {
-const entry = entries[input.dataset.entry];
-return normalizeText(input.value).join("") === entry.answer;
-});
-status.classList.toggle("clear", allCorrect);
+const allCorrect = allAnswersCorrect();
+status.classList.toggle("clear", allCorrect && secretShift.active);
 if (allCorrect) {
-status.textContent = "クリア！ すべての答えが正解です。";
+status.textContent = secretShift.active
+? "クリア！ 文字が消えた後のクロスワードも完成です。"
+: "クロスワードは完成しました。ただし、まだ終わりではありません。";
+} else if (secretShift.active) {
+status.textContent = "文字がひとつ消えています。もう一度クロスワードを解いてください。";
 } else if (allFilled) {
 status.textContent = "交差する文字や答えをもう一度確認してください。";
 } else {
@@ -789,12 +827,19 @@ refresh();
 scheduleImageSearch(input);
 });
 });
-resetButton.addEventListener("click", () => {
+function clearAllInputs(focusFirst = true) {
 inputs.forEach(input => {
 cancelSearch(input.dataset.entry);
 input.value = "";
 setCardEmpty(input.dataset.entry, `${entries[input.dataset.entry].answer.length}文字で表示`);
 });
+refresh();
+if (focusFirst) inputs[0].focus();
+}
+resetButton.addEventListener("click", () => {
+clearAllInputs();
+});
+renderClues();
 refresh();
 inputs[0].focus();
 });
