@@ -1,18 +1,18 @@
 (() => {
   const stages=[
     {rows:9,cols:9,entries:{
-      e1:{number:1,clue:"こえで物語を伝えるもの",answer:"ろうどく",cells:[[2,6],[3,6],[4,6],[5,6]]},
-      e2:{number:2,clue:"こけが生えるところ",answer:"いし",cells:[[5,3],[5,4]]},
-      e3:{number:3,clue:"こてを使う武道",answer:"けんどう",cells:[[4,4],[4,5],[4,6],[4,7]]},
-      e4:{number:4,clue:"こものを入れるもの",answer:"いれもの",cells:[[5,3],[6,3],[7,3],[8,3]]},
-      e5:{number:5,clue:"こけしそのもの",answer:"こけし",cells:[[3,4],[4,4],[5,4]]}
+      e1:{number:1,clue:"こえで物語を伝えるもの",answer:"ろうどく",cells:[[2,5],[3,5],[4,5],[5,5]]},
+      e2:{number:2,clue:"こけが生える場所",answer:"いし",cells:[[5,2],[5,3]]},
+      e3:{number:3,clue:"こてを使う武道",answer:"けんどう",cells:[[4,3],[4,4],[4,5],[4,6]]},
+      e4:{number:4,clue:"こえを売る仕事",answer:"せいゆう",cells:[[4,2],[5,2],[6,2],[7,2]]},
+      e5:{number:5,clue:"こけしそのもの",answer:"こけし",cells:[[3,3],[4,3],[5,3]]}
     }},
     {rows:9,cols:7,entries:{
       e1:{number:1,clue:"えで物語を伝えるもの",answer:"かみしばい",cells:[[4,2],[4,3],[4,4],[4,5],[4,6]]},
-      e2:{number:2,clue:"けが生えるところ",answer:"あし",cells:[[7,0],[7,1]]},
-      e3:{number:3,clue:"てを使う武道",answer:"けんぽう",cells:[[6,1],[6,2],[6,3],[6,4]]},
-      e4:{number:4,clue:"ものを入れるもの",answer:"かばん",cells:[[4,2],[5,2],[6,2]]},
-      e5:{number:5,clue:"けしそのもの",answer:"けし",cells:[[6,1],[7,1]]}
+      e2:{number:2,clue:"けが生える場所",answer:"うで",cells:[[3,7],[4,7]]},
+      e3:{number:3,clue:"てを使う武道",answer:"けんぽう",cells:[[3,4],[3,5],[3,6],[3,7]]},
+      e4:{number:4,clue:"えを売る仕事",answer:"がか",cells:[[3,2],[4,2]]},
+      e5:{number:5,clue:"けしそのもの",answer:"けし",cells:[[3,4],[4,4]]}
     }}
   ];
   let stageIndex=0,entries=stages[0].entries;
