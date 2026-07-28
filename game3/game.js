@@ -17,14 +17,14 @@
   const stages = [
     {
       e1: { number: 1, clue: "三文字で、棒で打つとしなるもの", answer: "しない" },
-      e2: { number: 2, clue: "三文字で、しろの上に置くもの", answer: "しゃち", imageQuery: "しゃちほこ" },
+      e2: { number: 2, clue: "三文字で、しろに置かれるもの", answer: "しゃち", imageQuery: "しゃちほこ" },
       e3: { number: 3, clue: "三文字で、食事に使うはし", answer: "おはし" },
       e4: { number: 4, clue: "四文字で、寝るときに使うしきもの", answer: "おふとん" },
       e5: { number: 5, clue: "二文字で、しろの上にあるもの", answer: "やね" }
     },
     {
       e1: { number: 1, clue: "三文字で、棒で打つとなるもの", answer: "たいこ" },
-      e2: { number: 2, clue: "三文字で、ろの上に置くもの", answer: "たきぎ" },
+      e2: { number: 2, clue: "三文字で、ろに置かれるもの", answer: "たきぎ" },
       e3: { number: 3, clue: "三文字で、食事に使うは", answer: "おくば" },
       e4: { number: 4, clue: "四文字で、寝るときに使うきもの", answer: "おねまき" },
       e5: { number: 5, clue: "二文字で、ろの上にあるもの", answer: "なべ" }
