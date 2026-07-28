@@ -595,8 +595,6 @@ console.warn("Googleかな漢字変換に失敗しました", error);
 }
 result = await tryTerms(prioritizeKanjiTerms(buildLocalNotationVariants(query), query));
 return result;
-result = await tryTerms(prioritizeKanjiTerms(buildLocalNotationVariants(query), query));
-return result;
 }
 async function fetchJson(url, signal) {
 const response = await fetch(url, {
