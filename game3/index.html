@@ -435,74 +435,77 @@ return String(title || "")
 .replace(/\s*[（(][^）)]*[）)]\s*$/, "")
 .trim();
 }
-function extractKanjiTerms(value) {
-return String(value || "").match(/[\p{Script=Han}々〆ヵヶ]{1,10}/gu) || [];
-}
-function isUsefulKanjiTerm(term) {
-const ignored = new Set([
-"日本", "日本語", "一般", "場合", "意味", "言葉", "名称", "呼称",
-"別名", "英語", "由来", "種類", "代表", "使用", "関連", "概要",
-"正式", "主に", "一種", "複数", "現在", "古く", "漢字"
-]);
-return /\p{Script=Han}/u.test(term) && term.length <= 10 && !ignored.has(term);
-}
-async function discoverWikipediaNotationVariants(query, clue, signal) {
-const searches = uniqueSearchTerms([buildContextQuery(query, clue), query]);
-const rankedTerms = [];
-let globalOrder = 0;
-const addCandidate = (term, score) => {
-const cleaned = stripWikipediaQualifier(term);
-if (!isUsefulKanjiTerm(cleaned)) return;
-rankedTerms.push({ term: cleaned, score, order: globalOrder++ });
+function googleImeJsonpRequest(text, timeoutMs = 7000) {
+return new Promise((resolve, reject) => {
+const callbackName = `googleImeJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+const script = document.createElement("script");
+let settled = false;
+const cleanup = () => {
+if (script.parentNode) script.parentNode.removeChild(script);
+try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
 };
-for (const searchText of searches) {
-const params = new URLSearchParams({
-action: "query",
-generator: "search",
-gsrsearch: searchText,
-gsrnamespace: "0",
-gsrlimit: "8",
-prop: "extracts",
-exintro: "1",
-explaintext: "1",
-exchars: "650",
-format: "json",
-formatversion: "2",
-origin: "*"
+const timer = window.setTimeout(() => {
+if (settled) return;
+settled = true;
+cleanup();
+reject(new Error("Googleかな漢字変換がタイムアウトしました"));
+}, timeoutMs);
+window[callbackName] = data => {
+if (settled) return;
+settled = true;
+window.clearTimeout(timer);
+cleanup();
+resolve(data);
+};
+script.onerror = () => {
+if (settled) return;
+settled = true;
+window.clearTimeout(timer);
+cleanup();
+reject(new Error("Googleかな漢字変換を読み込めませんでした"));
+};
+const endpoint = new URL("https://www.google.com/transliterate");
+endpoint.searchParams.set("langpair", "ja-Hira|ja");
+endpoint.searchParams.set("text", text);
+endpoint.searchParams.set("jsonp", callbackName);
+endpoint.searchParams.set("callback", callbackName);
+script.src = endpoint.toString();
+document.head.appendChild(script);
 });
-const data = await fetchJson(`https://ja.wikipedia.org/w/api.php?${params}`, signal);
-const pages = data.query?.pages || [];
-pages.forEach((page, pageIndex) => {
-const title = stripWikipediaQualifier(page.title || "");
-const extract = String(page.extract || "");
-const baseScore = scoreResult(title, extract, query, clue) - pageIndex * 8;
-if (/\p{Script=Han}/u.test(title)) addCandidate(title, baseScore + 520);
-const lead = extract.slice(0, 240);
-const bracketPattern = /[（(]([^）)]{1,100})[）)]/g;
-let bracketMatch;
-let bracketOrder = 0;
-while ((bracketMatch = bracketPattern.exec(lead)) !== null) {
-extractKanjiTerms(bracketMatch[1]).forEach((term, termIndex) => {
-addCandidate(term, baseScore + 470 - bracketOrder * 18 - termIndex * 4);
-});
-bracketOrder += 1;
 }
-extractKanjiTerms(lead).forEach((term, termIndex) => {
-addCandidate(term, baseScore + 150 - Math.min(termIndex, 20) * 3);
-});
-});
-if (rankedTerms.some(candidate => candidate.score >= 300)) break;
+function combineGoogleImeCandidates(data) {
+if (!Array.isArray(data)) return [];
+let combinations = [""];
+for (const segment of data) {
+if (!Array.isArray(segment) || !Array.isArray(segment[1])) continue;
+const candidates = segment[1]
+.map(value => String(value || "").normalize("NFKC").trim())
+.filter(Boolean)
+.slice(0, 8);
+if (!candidates.length) continue;
+const next = [];
+for (const prefix of combinations) {
+for (const candidate of candidates) {
+next.push(prefix + candidate);
+if (next.length >= 40) break;
 }
-const bestByTerm = new Map();
-rankedTerms.forEach(candidate => {
-const key = normalizeSearchText(candidate.term);
-const current = bestByTerm.get(key);
-if (!current || candidate.score > current.score) bestByTerm.set(key, candidate);
-});
-return [...bestByTerm.values()]
-.sort((left, right) => right.score - left.score || left.order - right.order)
-.slice(0, 8)
-.map(candidate => candidate.term);
+if (next.length >= 40) break;
+}
+combinations = next;
+}
+return uniqueSearchTerms(combinations)
+.filter(candidate => /\p{Script=Han}/u.test(candidate))
+.slice(0, 12);
+}
+async function discoverGoogleKanjiVariants(query, signal) {
+if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+const normalized = String(query || "").normalize("NFKC").replace(/[\s　]/g, "");
+if (!normalized || /\p{Script=Han}/u.test(normalized)) return [normalized].filter(Boolean);
+const hiragana = toHiragana(normalized);
+if (!/^[ぁ-ゖー]+$/.test(hiragana)) return [];
+const data = await googleImeJsonpRequest(hiragana);
+if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+return combineGoogleImeCandidates(data);
 }
 async function searchIrasutoyaOnce(searchTerm, originalQuery, clue) {
 const endpoint = new URL("https://www.irasutoya.com/feeds/posts/default");
@@ -579,9 +582,19 @@ if (result) return result;
 }
 return null;
 };
-const discoveredVariants = await discoverWikipediaNotationVariants(query, clue, signal);
-let result = await tryTerms(prioritizeKanjiTerms(discoveredVariants, query));
+let result = null;
+if (!/\p{Script=Han}/u.test(query)) {
+try {
+const googleKanjiVariants = await discoverGoogleKanjiVariants(query, signal);
+result = await tryTerms(googleKanjiVariants);
 if (result) return result;
+} catch (error) {
+if (error.name === "AbortError") throw error;
+console.warn("Googleかな漢字変換に失敗しました", error);
+}
+}
+result = await tryTerms(prioritizeKanjiTerms(buildLocalNotationVariants(query), query));
+return result;
 result = await tryTerms(prioritizeKanjiTerms(buildLocalNotationVariants(query), query));
 return result;
 }
