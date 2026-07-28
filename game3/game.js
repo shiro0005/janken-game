@@ -17,17 +17,17 @@
   const stages = [
     {
       e1: { number: 1, clue: "棒で打つとしなるもの", answer: "しない" },
-      e2: { number: 2, clue: "すしの主な中身", answer: "しゃり" },
-      e3: { number: 3, clue: "しきものを作るとき、材料をつなぐもの", answer: "なわ" },
+      e2: { number: 2, clue: "白くて、すしに入っているもの", answer: "しゃり" },
+      e3: { number: 3, clue: "二文字で、織ってしきものを作る材料", answer: "なわ" },
       e4: { number: 4, clue: "すしの材料になる小さなもの", answer: "いくら" },
-      e5: { number: 5, clue: "二文字で、木でできていて、しろの中にあるもの", answer: "くら" }
+      e5: { number: 5, clue: "二文字で、しろの中にあるもの", answer: "くら" }
     },
     {
       e1: { number: 1, clue: "棒で打つとなるもの", answer: "たいこ" },
-      e2: { number: 2, clue: "すの主な中身", answer: "たまご" },
-      e3: { number: 3, clue: "きものを作るとき、材料をつなぐもの", answer: "いと" },
+      e2: { number: 2, clue: "白くて、すに入っているもの", answer: "たまご" },
+      e3: { number: 3, clue: "二文字で、織ってきものを作る材料", answer: "いと" },
       e4: { number: 4, clue: "すの材料になる小さなもの", answer: "こえだ" },
-      e5: { number: 5, clue: "二文字で、木でできていて、ろの中にあるもの", answer: "えだ" }
+      e5: { number: 5, clue: "二文字で、ろの中にあるもの", answer: "えだ" }
     }
   ];
 
