@@ -70,3 +70,5 @@ jobs:
           git add game3/game.js
           git commit -m "Replace rope and nest clues with natural transformations"
           git push
+
+# trigger
