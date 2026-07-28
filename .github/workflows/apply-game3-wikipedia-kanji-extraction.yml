@@ -1,0 +1,120 @@
+name: Apply strict kanji-first image search
+
+on:
+  push:
+    paths:
+      - .github/workflows/apply-game3-wikipedia-kanji-extraction.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-game3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract kanji candidates before Irasutoya search
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("game3/index.html")
+          text = path.read_text(encoding="utf-8")
+          start_marker = "async function discoverWikipediaNotationVariants(query, clue, signal) {"
+          end_marker = "async function searchIrasutoyaOnce(searchTerm, originalQuery, clue) {"
+          start = text.find(start_marker)
+          end = text.find(end_marker, start)
+          if start < 0 or end < 0:
+              raise SystemExit("Target notation discovery block was not found")
+
+          replacement = r'''function extractKanjiTerms(value) {
+          return String(value || "").match(/[\p{Script=Han}々〆ヵヶ]{1,10}/gu) || [];
+          }
+          function isUsefulKanjiTerm(term) {
+          const ignored = new Set([
+          "日本", "日本語", "一般", "場合", "意味", "言葉", "名称", "呼称",
+          "別名", "英語", "由来", "種類", "代表", "使用", "関連", "概要",
+          "正式", "主に", "一種", "複数", "現在", "古く", "漢字"
+          ]);
+          return /\p{Script=Han}/u.test(term) && term.length <= 10 && !ignored.has(term);
+          }
+          async function discoverWikipediaNotationVariants(query, clue, signal) {
+          const searches = uniqueSearchTerms([buildContextQuery(query, clue), query]);
+          const rankedTerms = [];
+          let globalOrder = 0;
+          const addCandidate = (term, score) => {
+          const cleaned = stripWikipediaQualifier(term);
+          if (!isUsefulKanjiTerm(cleaned)) return;
+          rankedTerms.push({ term: cleaned, score, order: globalOrder++ });
+          };
+          for (const searchText of searches) {
+          const params = new URLSearchParams({
+          action: "query",
+          generator: "search",
+          gsrsearch: searchText,
+          gsrnamespace: "0",
+          gsrlimit: "8",
+          prop: "extracts",
+          exintro: "1",
+          explaintext: "1",
+          exchars: "650",
+          format: "json",
+          formatversion: "2",
+          origin: "*"
+          });
+          const data = await fetchJson(`https://ja.wikipedia.org/w/api.php?${params}`, signal);
+          const pages = data.query?.pages || [];
+          pages.forEach((page, pageIndex) => {
+          const title = stripWikipediaQualifier(page.title || "");
+          const extract = String(page.extract || "");
+          const baseScore = scoreResult(title, extract, query, clue) - pageIndex * 8;
+          if (/\p{Script=Han}/u.test(title)) addCandidate(title, baseScore + 520);
+          const lead = extract.slice(0, 240);
+          const bracketPattern = /[（(]([^）)]{1,100})[）)]/g;
+          let bracketMatch;
+          let bracketOrder = 0;
+          while ((bracketMatch = bracketPattern.exec(lead)) !== null) {
+          extractKanjiTerms(bracketMatch[1]).forEach((term, termIndex) => {
+          addCandidate(term, baseScore + 470 - bracketOrder * 18 - termIndex * 4);
+          });
+          bracketOrder += 1;
+          }
+          extractKanjiTerms(lead).forEach((term, termIndex) => {
+          addCandidate(term, baseScore + 150 - Math.min(termIndex, 20) * 3);
+          });
+          });
+          if (rankedTerms.some(candidate => candidate.score >= 300)) break;
+          }
+          const bestByTerm = new Map();
+          rankedTerms.forEach(candidate => {
+          const key = normalizeSearchText(candidate.term);
+          const current = bestByTerm.get(key);
+          if (!current || candidate.score > current.score) bestByTerm.set(key, candidate);
+          });
+          return [...bestByTerm.values()]
+          .sort((left, right) => right.score - left.score || left.order - right.order)
+          .slice(0, 8)
+          .map(candidate => candidate.term);
+          }
+          '''
+
+          path.write_text(text[:start] + replacement + text[end:], encoding="utf-8")
+          PY
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: |
+          node - <<'JS'
+          const fs = require('fs');
+          const html = fs.readFileSync('game3/index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(match => match[1]);
+          scripts.forEach(script => new Function(script));
+          JS
+      - name: Commit game3 update
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game3/index.html
+          git commit -m "Extract kanji notation before Irasutoya search"
+          git push
