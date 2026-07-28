@@ -508,6 +508,34 @@ sourceName: "いらすとや"
 }
 return null;
 }
+function prioritizeKanjiTerms(terms, originalQuery) {
+const normalizedOriginal = normalizeSearchText(originalQuery);
+const originalHasKanji = /\p{Script=Han}/u.test(originalQuery);
+const unique = uniqueSearchTerms(terms);
+const exact = [];
+const kanji = [];
+const kana = [];
+const other = [];
+unique.forEach(term => {
+const normalized = normalizeSearchText(term);
+if (normalized === normalizedOriginal) {
+exact.push(term);
+return;
+}
+if (/\p{Script=Han}/u.test(term)) {
+kanji.push(term);
+return;
+}
+if (/[ぁ-ゖァ-ヶ]/.test(term)) {
+kana.push(term);
+return;
+}
+other.push(term);
+});
+return originalHasKanji
+? [...exact, ...kanji, ...kana, ...other]
+: [...kanji, ...exact, ...kana, ...other];
+}
 async function searchIrasutoya(query, clue, signal) {
 const tried = new Set();
 const tryTerms = async terms => {
@@ -521,10 +549,10 @@ if (result) return result;
 }
 return null;
 };
-let result = await tryTerms(buildLocalNotationVariants(query));
-if (result) return result;
 const discoveredVariants = await discoverWikipediaNotationVariants(query, clue, signal);
-result = await tryTerms(discoveredVariants);
+let result = await tryTerms(prioritizeKanjiTerms(discoveredVariants, query));
+if (result) return result;
+result = await tryTerms(prioritizeKanjiTerms(buildLocalNotationVariants(query), query));
 return result;
 }
 async function fetchJson(url, signal) {
