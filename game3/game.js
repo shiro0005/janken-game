@@ -4,30 +4,30 @@
 
   const shape = {
     rows: 7,
-    cols: 7,
+    cols: 8,
     cells: {
-      e1: [[3, 2], [3, 3], [3, 4]],
-      e2: [[3, 2], [4, 2], [5, 2]],
-      e3: [[3, 3], [4, 3]],
-      e4: [[3, 4], [4, 4], [5, 4]],
-      e5: [[4, 4], [4, 5]]
+      e1: [[2, 1], [2, 2], [2, 3]],
+      e2: [[2, 1], [3, 1], [4, 1]],
+      e3: [[5, 4], [5, 5], [5, 6]],
+      e4: [[5, 4], [4, 4], [3, 4], [2, 4]],
+      e5: [[0, 6], [0, 7]]
     }
   };
 
   const stages = [
     {
-      e1: { number: 1, clue: "棒で打つとしなるもの", answer: "しない" },
-      e2: { number: 2, clue: "白くて、すしに入っているもの", answer: "しゃり" },
-      e3: { number: 3, clue: "二文字で、織ってしきものを作る材料", answer: "なわ" },
-      e4: { number: 4, clue: "すしの材料になる小さなもの", answer: "いくら" },
-      e5: { number: 5, clue: "二文字で、しろの中にあるもの", answer: "くら" }
+      e1: { number: 1, clue: "三文字で、棒で打つとしなるもの", answer: "しない" },
+      e2: { number: 2, clue: "三文字で、しろの上に置くもの", answer: "しゃち", imageQuery: "しゃちほこ" },
+      e3: { number: 3, clue: "三文字で、食事に使うはし", answer: "おはし" },
+      e4: { number: 4, clue: "四文字で、寝るときに使うしきもの", answer: "おふとん" },
+      e5: { number: 5, clue: "二文字で、しろの上にあるもの", answer: "やね" }
     },
     {
-      e1: { number: 1, clue: "棒で打つとなるもの", answer: "たいこ" },
-      e2: { number: 2, clue: "白くて、すに入っているもの", answer: "たまご" },
-      e3: { number: 3, clue: "二文字で、織ってきものを作る材料", answer: "いと" },
-      e4: { number: 4, clue: "すの材料になる小さなもの", answer: "こえだ" },
-      e5: { number: 5, clue: "二文字で、ろの中にあるもの", answer: "えだ" }
+      e1: { number: 1, clue: "三文字で、棒で打つとなるもの", answer: "たいこ" },
+      e2: { number: 2, clue: "三文字で、ろの上に置くもの", answer: "たきぎ" },
+      e3: { number: 3, clue: "三文字で、食事に使うは", answer: "おくば" },
+      e4: { number: 4, clue: "四文字で、寝るときに使うきもの", answer: "おねまき" },
+      e5: { number: 5, clue: "二文字で、ろの上にあるもの", answer: "なべ" }
     }
   ];
 
@@ -56,6 +56,12 @@
           values.set(key, character);
         });
       }
+    }
+
+    const specialAnswers = stages.flatMap(stage => Object.values(stage).map(entry => entry.answer))
+      .filter(answer => answer === "しない" || answer === "こけし");
+    if (specialAnswers.length !== 1 || stages[0][specialId].answer !== "しない") {
+      throw new Error("特殊画像は竹刀だけでなければなりません");
     }
   }
 
@@ -150,7 +156,6 @@
 
     const active = new Set();
     const numbers = new Map();
-
     for (const id of Object.keys(shape.cells)) {
       const positions = shape.cells[id];
       positions.forEach(([row, column]) => active.add(`${row}-${column}`));
@@ -164,7 +169,6 @@
         const key = `${row}-${column}`;
         const element = document.createElement("div");
         element.className = active.has(key) ? "cell" : "cell block";
-
         if (active.has(key)) {
           if (numbers.has(key)) {
             const number = document.createElement("span");
@@ -176,7 +180,6 @@
           element.appendChild(letter);
           cells.set(key, { element, letter });
         }
-
         board.appendChild(element);
       }
     }
@@ -184,7 +187,6 @@
 
   function updateBoard() {
     const valuesByCell = new Map();
-
     for (const [id, entry] of Object.entries(entries)) {
       const characters = clean(inputs.get(id)?.value);
       shape.cells[id].forEach((position, index) => {
@@ -204,18 +206,14 @@
   }
 
   function allCorrect() {
-    return Object.entries(entries).every(([id, entry]) => {
-      return clean(inputs.get(id)?.value).join("") === entry.answer;
-    });
+    return Object.entries(entries).every(([id, entry]) => clean(inputs.get(id)?.value).join("") === entry.answer);
   }
 
   function refresh() {
     for (const [id, input] of inputs) {
       const entry = entries[id];
       const characters = clean(input.value);
-      if (characters.length > entry.answer.length) {
-        input.value = characters.slice(0, entry.answer.length).join("");
-      }
+      if (characters.length > entry.answer.length) input.value = characters.slice(0, entry.answer.length).join("");
 
       const current = clean(input.value);
       const filled = current.length === entry.answer.length;
@@ -226,7 +224,6 @@
     }
 
     updateBoard();
-
     const correct = allCorrect();
     const filled = [...inputs].every(([id, input]) => clean(input.value).length === entries[id].answer.length);
     status.classList.toggle("clear", correct && stageIndex === 1);
@@ -268,7 +265,6 @@
     cancelSearch(id);
     const entry = entries[id];
     const query = clean(inputs.get(id).value).join("");
-
     if (query.length !== entry.answer.length) {
       emptyCard(id);
       return;
@@ -278,16 +274,16 @@
     searches.set(id, state);
     state.timer = setTimeout(async () => {
       const card = cards.get(id);
+      const searchQuery = query === entry.answer && entry.imageQuery ? entry.imageQuery : query;
       card.figure.classList.remove("ready");
       card.figure.classList.add("loading");
       card.word.textContent = query;
       state.controller = new AbortController();
 
       try {
-        const result = await window.findWordImage(query, entry.clue, state.controller.signal);
+        const result = await window.findWordImage(searchQuery, entry.clue, state.controller.signal);
         if (searches.get(id) !== state) return;
         card.figure.classList.remove("loading");
-
         if (!result) {
           card.placeholder.textContent = "画像なし";
           return;
