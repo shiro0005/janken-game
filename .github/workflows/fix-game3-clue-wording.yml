@@ -1,0 +1,55 @@
+name: Fix game3 clue wording
+
+on:
+  push:
+    paths:
+      - .github/workflows/fix-game3-clue-wording.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-game3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Correct ambiguous clues
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('game3/game.js')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = {
+              'e2: { number: 2, clue: "すしの主な中身", answer: "しゃり" }':
+              'e2: { number: 2, clue: "白くて、すしに入っているもの", answer: "しゃり" }',
+              'e2: { number: 2, clue: "すの主な中身", answer: "たまご" }':
+              'e2: { number: 2, clue: "白くて、すに入っているもの", answer: "たまご" }',
+              'e3: { number: 3, clue: "しきものを作るとき、材料をつなぐもの", answer: "なわ" }':
+              'e3: { number: 3, clue: "二文字で、織ってしきものを作る材料", answer: "なわ" }',
+              'e3: { number: 3, clue: "きものを作るとき、材料をつなぐもの", answer: "いと" }':
+              'e3: { number: 3, clue: "二文字で、織ってきものを作る材料", answer: "いと" }',
+              'e5: { number: 5, clue: "二文字で、木でできていて、しろの中にあるもの", answer: "くら" }':
+              'e5: { number: 5, clue: "二文字で、しろの中にあるもの", answer: "くら" }',
+              'e5: { number: 5, clue: "二文字で、木でできていて、ろの中にあるもの", answer: "えだ" }':
+              'e5: { number: 5, clue: "二文字で、ろの中にあるもの", answer: "えだ" }'
+          }
+
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'expected text not found: {old}')
+              text = text.replace(old, new, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+          node --check game3/game.js
+      - name: Commit corrected clues
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game3/game.js
+          git commit -m "Clarify sushi, nest, mat, and kimono clues"
+          git push
