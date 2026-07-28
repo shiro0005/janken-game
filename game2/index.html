@@ -257,6 +257,33 @@
       line-height: 1.7;
     }
 
+    .transition-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #315b9d;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .transition-spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(49, 91, 157, .22);
+      border-top-color: #315b9d;
+      border-radius: 50%;
+      animation: transition-spin .75s linear infinite;
+    }
+
+    @keyframes transition-spin {
+      to { transform: rotate(360deg); }
+    }
+
     .hidden { display: none !important; }
 
     @media (max-width: 700px) {
@@ -380,9 +407,13 @@
       </div>
 
       <div class="clear-overlay hidden" id="clearOverlay" aria-live="polite">
-        <div class="clear-card">
+        <div class="clear-card" aria-busy="true">
           <h2 class="clear-title">クリア！</h2>
           <p class="clear-text">すべてのイラストを正しく分けられました。</p>
+          <div class="transition-status" role="status">
+            <span class="transition-spinner" aria-hidden="true"></span>
+            <span>クロスワードクイズへ移動中…</span>
+          </div>
         </div>
       </div>
     </section>
