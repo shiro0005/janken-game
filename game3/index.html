@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>クロスワードクイズ</title>
+  <script>
+    (() => {
+      const localPreview = window.location.protocol === "file:";
+      const unlocked = localPreview || sessionStorage.getItem("game3Unlocked") === "true";
+      if (!unlocked) window.location.replace("../");
+    })();
+  </script>
+  <style>
+    :root {
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+      color: #202124;
+      background: #f4f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    button,
+    input { font: inherit; }
+
+    .page {
+      width: min(1080px, 100%);
+      margin: 0 auto;
+    }
+
+    .heading {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 44px);
+    }
+
+    .instruction {
+      margin: 0;
+      color: #69727d;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .game-panel {
+      padding: 24px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(35, 55, 80, 0.14);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) minmax(300px, 390px) minmax(240px, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .clue-panel {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid #dde3ec;
+      border-radius: 18px;
+      background: #fafbfd;
+    }
+
+    .clue-panel h2 {
+      margin: 0 0 14px;
+      font-size: 24px;
+    }
+
+    .clue-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .clue {
+      padding-bottom: 14px;
+      border-bottom: 1px solid #e3e7ed;
+    }
+
+    .clue:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .clue-label {
+      display: block;
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .clue-number {
+      display: inline-grid;
+      place-items: center;
+      min-width: 26px;
+      height: 26px;
+      margin-right: 6px;
+      border-radius: 999px;
+      background: #e8eef7;
+      font-weight: 800;
+    }
+
+    .answer-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-width: 0;
+      border: 2px solid #cfd7e3;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      font-size: 18px;
+    }
+
+    .answer-input:focus {
+      border-color: #4b7bec;
+      outline: 3px solid rgba(75, 123, 236, 0.18);
+    }
+
+    .answer-input.complete {
+      border-color: #5aa96f;
+      background: #f5fbf7;
+    }
+
+    .answer-input.wrong {
+      border-color: #d66b62;
+      background: #fff8f7;
+    }
+
+    .char-count {
+      min-width: 44px;
+      color: #69727d;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .board-area {
+      display: grid;
+      justify-items: center;
+      gap: 14px;
+    }
+
+    .board-title {
+      margin: 0;
+      font-size: 18px;
+      color: #5f6975;
+    }
+
+    .crossword {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(44px, 58px));
+      grid-template-rows: repeat(6, minmax(44px, 58px));
+      gap: 3px;
+      padding: 10px;
+      border-radius: 16px;
+      background: #263238;
+    }
+
+    .cell {
+      position: relative;
+      display: grid;
+      place-items: center;
+      border-radius: 5px;
+      background: #fff;
+      font-size: clamp(22px, 4vw, 31px);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .cell.block {
+      background: #263238;
+    }
+
+    .cell.conflict {
+      background: #ffe2df;
+      color: #b3261e;
+    }
+
+    .cell-number {
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      color: #59636f;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .status {
+      min-height: 24px;
+      margin: 0;
+      color: #69727d;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .status.clear {
+      color: #188038;
+      font-weight: 800;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 22px;
+    }
+
+    .reset-button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 22px;
+      background: #eef2f7;
+      color: #4f5a67;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .board-area {
+        grid-column: 1 / -1;
+        grid-row: 1;
+      }
+    }
+
+    @media (max-width: 620px) {
+      body { padding: 14px; }
+      .game-panel { padding: 16px; }
+      .layout { grid-template-columns: 1fr; }
+      .board-area { grid-column: auto; grid-row: auto; }
+      .crossword {
+        grid-template-columns: repeat(5, minmax(42px, 54px));
+        grid-template-rows: repeat(6, minmax(42px, 54px));
+      }
+    }
+
+    @media (max-width: 370px) {
+      .crossword {
+        grid-template-columns: repeat(5, 40px);
+        grid-template-rows: repeat(6, 40px);
+        gap: 2px;
+        padding: 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="heading">
+      <h1>クロスワードクイズ</h1>
+      <p class="instruction">カギに合う言葉を入力してください。入力した文字は中央のパズルへ反映されます。</p>
+    </header>
+
+    <section class="game-panel">
+      <div class="layout">
+        <section class="clue-panel" aria-labelledby="acrossTitle">
+          <h2 id="acrossTitle">ヨコのカギ</h2>
+          <div class="clue-list">
+            <div class="clue">
+              <label class="clue-label" for="across1">
+                <span class="clue-number">1</span>春に咲く代表的な花
+              </label>
+              <div class="answer-wrap">
+                <input id="across1" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="3" data-entry="across1" aria-describedby="count-across1">
+                <span class="char-count" id="count-across1">0/3</span>
+              </div>
+            </div>
+
+            <div class="clue">
+              <label class="clue-label" for="across2">
+                <span class="clue-number">3</span>寿司や刺身で人気の赤身魚
+              </label>
+              <div class="answer-wrap">
+                <input id="across2" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="3" data-entry="across2" aria-describedby="count-across2">
+                <span class="char-count" id="count-across2">0/3</span>
+              </div>
+            </div>
+
+            <div class="clue">
+              <label class="clue-label" for="across3">
+                <span class="clue-number">5</span>牛乳を表す外来語
+              </label>
+              <div class="answer-wrap">
+                <input id="across3" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="3" data-entry="across3" aria-describedby="count-across3">
+                <span class="char-count" id="count-across3">0/3</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="board-area" aria-labelledby="boardTitle">
+          <h2 class="board-title" id="boardTitle">パズル</h2>
+          <div class="crossword" id="crossword" role="grid" aria-label="6行5列のクロスワード盤面"></div>
+          <p class="status" id="status" aria-live="polite">カギの入力欄は、指定された文字数まで入力できます。</p>
+        </section>
+
+        <section class="clue-panel" aria-labelledby="downTitle">
+          <h2 id="downTitle">タテのカギ</h2>
+          <div class="clue-list">
+            <div class="clue">
+              <label class="clue-label" for="down1">
+                <span class="clue-number">2</span>道路を走る乗り物
+              </label>
+              <div class="answer-wrap">
+                <input id="down1" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="3" data-entry="down1" aria-describedby="count-down1">
+                <span class="char-count" id="count-down1">0/3</span>
+              </div>
+            </div>
+
+            <div class="clue">
+              <label class="clue-label" for="down2">
+                <span class="clue-number">4</span>火をつけて明かりにするもの
+              </label>
+              <div class="answer-wrap">
+                <input id="down2" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="4" data-entry="down2" aria-describedby="count-down2">
+                <span class="char-count" id="count-down2">0/4</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="controls">
+        <button class="reset-button" id="resetButton" type="button">入力をリセット</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const entries = {
+      across1: {
+        answer: "さくら",
+        cells: [[0, 1], [0, 2], [0, 3]]
+      },
+      down1: {
+        answer: "くるま",
+        cells: [[0, 2], [1, 2], [2, 2]]
+      },
+      across2: {
+        answer: "まぐろ",
+        cells: [[2, 2], [2, 3], [2, 4]]
+      },
+      down2: {
+        answer: "ろうそく",
+        cells: [[2, 4], [3, 4], [4, 4], [5, 4]]
+      },
+      across3: {
+        answer: "みるく",
+        cells: [[5, 2], [5, 3], [5, 4]]
+      }
+    };
+
+    const clueNumbers = {
+      "0-1": "1",
+      "0-2": "2",
+      "2-2": "3",
+      "2-4": "4",
+      "5-2": "5"
+    };
+
+    const rows = 6;
+    const columns = 5;
+    const crossword = document.getElementById("crossword");
+    const status = document.getElementById("status");
+    const resetButton = document.getElementById("resetButton");
+    const inputs = [...document.querySelectorAll(".answer-input")];
+    const activeCells = new Set();
+    const cellElements = new Map();
+
+    Object.values(entries).forEach(entry => {
+      entry.cells.forEach(([row, column]) => activeCells.add(`${row}-${column}`));
+    });
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        const key = `${row}-${column}`;
+        const cell = document.createElement("div");
+        cell.className = activeCells.has(key) ? "cell" : "cell block";
+        cell.setAttribute("role", "gridcell");
+
+        if (activeCells.has(key)) {
+          cell.dataset.cell = key;
+          if (clueNumbers[key]) {
+            const number = document.createElement("span");
+            number.className = "cell-number";
+            number.textContent = clueNumbers[key];
+            cell.appendChild(number);
+          }
+          const letter = document.createElement("span");
+          letter.className = "cell-letter";
+          cell.appendChild(letter);
+          cellElements.set(key, { cell, letter });
+        } else {
+          cell.setAttribute("aria-hidden", "true");
+        }
+
+        crossword.appendChild(cell);
+      }
+    }
+
+    function normalizeText(value) {
+      return Array.from(value.replace(/[\s　]/g, ""));
+    }
+
+    function getEntryCharacters(entryId) {
+      const input = document.querySelector(`[data-entry="${entryId}"]`);
+      return normalizeText(input.value);
+    }
+
+    function updateBoard() {
+      const valuesByCell = new Map();
+
+      Object.entries(entries).forEach(([entryId, entry]) => {
+        const characters = getEntryCharacters(entryId);
+        entry.cells.forEach(([row, column], index) => {
+          const key = `${row}-${column}`;
+          const char = characters[index] ?? "";
+          if (!char) return;
+          if (!valuesByCell.has(key)) valuesByCell.set(key, []);
+          valuesByCell.get(key).push(char);
+        });
+      });
+
+      cellElements.forEach(({ cell, letter }, key) => {
+        const values = valuesByCell.get(key) ?? [];
+        const unique = [...new Set(values)];
+        cell.classList.toggle("conflict", unique.length > 1);
+        letter.textContent = unique.length === 0 ? "" : unique.length === 1 ? unique[0] : "？";
+      });
+    }
+
+    function updateInputState(input) {
+      const entryId = input.dataset.entry;
+      const entry = entries[entryId];
+      const characters = normalizeText(input.value);
+      const maxLength = entry.answer.length;
+
+      if (characters.length > maxLength) {
+        input.value = characters.slice(0, maxLength).join("");
+      }
+
+      const current = normalizeText(input.value);
+      document.getElementById(`count-${entryId}`).textContent = `${current.length}/${maxLength}`;
+
+      const filled = current.length === maxLength;
+      const correct = current.join("") === entry.answer;
+      input.classList.toggle("complete", filled && correct);
+      input.classList.toggle("wrong", filled && !correct);
+    }
+
+    function updateStatus() {
+      const allFilled = inputs.every(input => {
+        const entry = entries[input.dataset.entry];
+        return normalizeText(input.value).length === entry.answer.length;
+      });
+
+      const allCorrect = inputs.every(input => {
+        const entry = entries[input.dataset.entry];
+        return normalizeText(input.value).join("") === entry.answer;
+      });
+
+      status.classList.toggle("clear", allCorrect);
+
+      if (allCorrect) {
+        status.textContent = "クリア！ すべての答えが正解です。";
+      } else if (allFilled) {
+        status.textContent = "交差する文字や答えをもう一度確認してください。";
+      } else {
+        status.textContent = "カギの入力欄は、指定された文字数まで入力できます。";
+      }
+    }
+
+    function refresh() {
+      inputs.forEach(updateInputState);
+      updateBoard();
+      updateStatus();
+    }
+
+    inputs.forEach(input => {
+      input.addEventListener("input", refresh);
+      input.addEventListener("compositionend", refresh);
+    });
+
+    resetButton.addEventListener("click", () => {
+      inputs.forEach(input => { input.value = ""; });
+      refresh();
+      inputs[0].focus();
+    });
+
+    refresh();
+  </script>
+</body>
+</html>
