@@ -1,3 +1,4 @@
+# retry: workflow already exists on main, so this push triggers it
 name: Apply true clue-shift crossword
 
 on:
