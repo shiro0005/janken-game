@@ -1,27 +1,1146 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>クロスワードクイズ</title><script>(()=>{const ok=location.protocol==='file:'||sessionStorage.getItem('game3Unlocked')==='true';if(!ok)location.replace('../')})()</script><style>
-:root{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",system-ui,sans-serif;color:#202124;background:#f4f7fb}*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px}button,input{font:inherit}.page{width:min(1220px,100%);margin:auto}.heading{text-align:center;margin-bottom:20px}h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px)}.instruction,.note,.status{margin:0;color:#69727d;font-size:14px;line-height:1.65}.panel{padding:24px;border-radius:24px;background:#fff;box-shadow:0 18px 50px #23375024}.layout{display:grid;grid-template-columns:minmax(220px,1fr) minmax(500px,560px) minmax(220px,1fr);gap:24px;align-items:start}.clues{min-width:0;padding:18px;border:1px solid #dde3ec;border-radius:18px;background:#fafbfd}.clues h2{margin:0 0 14px;font-size:24px}.clue{padding:0 0 14px;margin:0 0 14px;border-bottom:1px solid #e3e7ed}.clue:last-child{padding:0;margin:0;border:0}.label{display:block;margin-bottom:8px;line-height:1.55}.num{display:inline-grid;place-items:center;min-width:26px;height:26px;margin-right:6px;padding:0 5px;border-radius:999px;background:#e8eef7;font-weight:800}.answer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.answer input{width:100%;min-width:0;padding:10px 12px;border:2px solid #cfd7e3;border-radius:12px;background:#fff;font-size:18px}.answer input:focus{border-color:#4b7bec;outline:3px solid #4b7bec2e}.answer input.ok{border-color:#5aa96f;background:#f5fbf7}.answer input.ng{border-color:#d66b62;background:#fff8f7}.count{min-width:44px;color:#69727d;font-size:13px;text-align:right}.board-area{display:grid;justify-items:center;gap:14px}.board-area h2{margin:0;color:#5f6975;font-size:18px}.stage{display:grid;grid-template-columns:104px auto 104px;grid-template-rows:118px auto 118px;gap:10px;width:min(100%,560px);align-items:center;justify-items:center}.grid{grid-column:2;grid-row:2;z-index:2;display:grid;grid-template-columns:repeat(5,minmax(44px,58px));grid-template-rows:repeat(6,minmax(44px,58px));gap:3px;padding:10px;border-radius:16px;background:#263238}.cell{position:relative;display:grid;place-items:center;border-radius:5px;background:#fff;font-size:clamp(22px,4vw,31px);font-weight:800}.cell.block{background:#263238}.cell.conflict{background:#ffe2df;color:#b3261e}.cell small{position:absolute;top:3px;left:4px;color:#59636f;font-size:10px}.pic{z-index:3;width:104px;margin:0;padding:6px;border:1px solid #d9e0e9;border-radius:14px;background:#fff;box-shadow:0 8px 20px #2337501f;overflow:hidden}.pic.a1{grid-column:2;grid-row:1}.pic.d1{grid-column:1;grid-row:2;align-self:start;margin-top:5px}.pic.a2{grid-column:3;grid-row:2;align-self:start;margin-top:58px}.pic.d2{grid-column:3;grid-row:2;align-self:end;margin-bottom:6px}.pic.a3{grid-column:2;grid-row:3}.frame{width:90px;height:68px;display:grid;place-items:center;border-radius:10px;background:#eef2f7;overflow:hidden}.frame img{display:none;width:100%;height:100%;object-fit:cover}.pic.ready img{display:block}.placeholder{padding:5px;color:#788390;font-size:12px;font-weight:800;text-align:center}.pic.ready .placeholder,.pic.loading .placeholder{display:none}.spin{display:none;width:24px;height:24px;border:3px solid #4b7bec33;border-top-color:#4b7bec;border-radius:50%;animation:spin .75s linear infinite}.pic.loading .spin{display:block}@keyframes spin{to{transform:rotate(360deg)}}figcaption{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px;align-items:center;margin-top:5px;font-size:11px}.word{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}.source{grid-column:1/-1;justify-self:end;color:#4b66a5;font-size:10px}.note{max-width:540px;font-size:12px;text-align:center}.status{min-height:24px;text-align:center}.status.clear{color:#188038;font-weight:800}.controls{text-align:center;margin-top:22px}.controls button{border:0;border-radius:12px;padding:11px 22px;background:#eef2f7;color:#4f5a67;font-weight:700;cursor:pointer}
-@media(max-width:1080px){.layout{grid-template-columns:1fr 1fr}.board-area{grid-column:1/-1;grid-row:1}}@media(max-width:620px){body{padding:14px}.panel{padding:16px}.layout{grid-template-columns:1fr}.board-area{grid-column:auto;grid-row:auto}.stage{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto;width:100%}.grid{grid-column:1/-1;grid-row:1;grid-template-columns:repeat(5,minmax(42px,54px));grid-template-rows:repeat(6,minmax(42px,54px))}.pic{width:100%;display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;align-items:center}.frame{width:76px;height:62px}.pic.a1,.pic.d1,.pic.a2,.pic.d2,.pic.a3{grid-column:auto;grid-row:auto;align-self:auto;margin:0}.pic.a1,.pic.a2{grid-column:1}.pic.d1,.pic.d2{grid-column:2}.pic.a3{grid-column:1/-1;width:calc(50% - 5px);justify-self:center}figcaption{margin:0}}@media(max-width:370px){.grid{grid-template-columns:repeat(5,40px);grid-template-rows:repeat(6,40px);gap:2px;padding:7px}}
-</style></head><body><main class="page"><header class="heading"><h1>クロスワードクイズ</h1><p class="instruction">カギに合う言葉を入力してください。入力した文字は中央のパズルへ反映されます。</p></header><section class="panel"><div class="layout" id="layout"></div><div class="controls"><button id="reset" type="button">入力をリセット</button></div></section></main><script>
-const E={a1:{n:1,d:'a',clue:'春に咲く代表的な花',ans:'さくら',cells:[[0,1],[0,2],[0,3]]},d1:{n:2,d:'d',clue:'道路を走る乗り物',ans:'くるま',cells:[[0,2],[1,2],[2,2]]},a2:{n:3,d:'a',clue:'寿司や刺身で人気の赤身魚',ans:'まぐろ',cells:[[2,2],[2,3],[2,4]]},d2:{n:4,d:'d',clue:'火をつけて明かりにするもの',ans:'ろうそく',cells:[[2,4],[3,4],[4,4],[5,4]]},a3:{n:5,d:'a',clue:'牛乳を表す外来語',ans:'みるく',cells:[[5,2],[5,3],[5,4]]}};
-const nums={'0-1':1,'0-2':2,'2-2':3,'2-4':4,'5-2':5},layout=document.querySelector('#layout'),cards=new Map,states=new Map,cache=new Map,cells=new Map;
-const norm=v=>Array.from(v.replace(/[\s　]/g,''));
-function cluePanel(dir,title){const s=document.createElement('section');s.className='clues';s.innerHTML=`<h2>${title}</h2>`;Object.entries(E).filter(([,e])=>e.d===dir).forEach(([id,e])=>{const x=document.createElement('div');x.className='clue';x.innerHTML=`<label class="label" for="${id}"><span class="num">${e.n}</span>${e.clue}</label><div class="answer"><input id="${id}" maxlength="${e.ans.length}" autocomplete="off" data-id="${id}"><span class="count" id="c-${id}">0/${e.ans.length}</span></div>`;s.append(x)});return s}
-const board=document.createElement('section');board.className='board-area';board.innerHTML='<h2>パズル</h2><div class="stage" id="stage"><div class="grid" id="grid" role="grid"></div></div><p class="note">指定文字数に達すると、その言葉の画像をWikipedia／Wikimedia Commonsから自動検索します。正解かどうかに関係なく検索されます。</p><p class="status" id="status">指定された文字数まで入力できます。</p>';
-layout.append(cluePanel('a','ヨコのカギ'),board,cluePanel('d','タテのカギ'));const stage=document.querySelector('#stage'),grid=document.querySelector('#grid'),status=document.querySelector('#status'),inputs=[...document.querySelectorAll('input[data-id]')],active=new Set;
-Object.values(E).forEach(e=>e.cells.forEach(([r,c])=>active.add(`${r}-${c}`)));for(let r=0;r<6;r++)for(let c=0;c<5;c++){const k=`${r}-${c}`,x=document.createElement('div');x.className=active.has(k)?'cell':'cell block';if(active.has(k)){if(nums[k])x.innerHTML=`<small>${nums[k]}</small>`;const l=document.createElement('span');x.append(l);cells.set(k,{x,l})}grid.append(x)}
-Object.entries(E).forEach(([id,e])=>{const f=document.createElement('figure');f.className=`pic ${id}`;f.innerHTML=`<div class="frame"><img alt="" decoding="async"><span class="placeholder">${e.ans.length}文字で表示</span><span class="spin"></span></div><figcaption><span class="num">${e.n}</span><span class="word">未入力</span><a class="source" target="_blank" rel="noopener" hidden>出典</a></figcaption>`;stage.append(f);cards.set(id,{f,img:f.querySelector('img'),ph:f.querySelector('.placeholder'),word:f.querySelector('.word'),src:f.querySelector('.source')})});
-function boardUpdate(){const m=new Map;Object.entries(E).forEach(([id,e])=>norm(document.querySelector('#'+id).value).forEach((ch,i)=>{const p=e.cells[i];if(!p)return;const k=p.join('-');if(!m.has(k))m.set(k,[]);m.get(k).push(ch)}));cells.forEach(({x,l},k)=>{const u=[...new Set(m.get(k)||[])];x.classList.toggle('conflict',u.length>1);l.textContent=u.length===1?u[0]:u.length?'？':''})}
-function inputUpdate(i){const e=E[i.dataset.id],a=norm(i.value);if(a.length>e.ans.length)i.value=a.slice(0,e.ans.length).join('');const v=norm(i.value);document.querySelector('#c-'+i.dataset.id).textContent=`${v.length}/${e.ans.length}`;i.classList.toggle('ok',v.join('')===e.ans);i.classList.toggle('ng',v.length===e.ans.length&&v.join('')!==e.ans)}
-function statusUpdate(){const full=inputs.every(i=>norm(i.value).length===E[i.dataset.id].ans.length),ok=inputs.every(i=>norm(i.value).join('')===E[i.dataset.id].ans);status.classList.toggle('clear',ok);status.textContent=ok?'クリア！ すべての答えが正解です。':full?'交差する文字や答えを確認してください。':'指定された文字数まで入力できます。'}
-function refresh(){inputs.forEach(inputUpdate);boardUpdate();statusUpdate()}
-function clearCard(id,msg){const c=cards.get(id);c.f.classList.remove('loading','ready');c.img.removeAttribute('src');c.ph.textContent=msg;c.word.textContent='未入力';c.src.hidden=true;c.src.removeAttribute('href')}
-function loading(id,q){const c=cards.get(id);c.f.classList.remove('ready');c.f.classList.add('loading');c.img.removeAttribute('src');c.word.textContent=q;c.src.hidden=true}
-function result(id,q,r){const c=cards.get(id);c.f.classList.remove('loading');c.word.textContent=q;if(!r){c.f.classList.remove('ready');c.ph.textContent='画像なし';c.src.hidden=true;return}c.img.onload=()=>c.f.classList.add('ready');c.img.onerror=()=>{c.f.classList.remove('ready');c.ph.textContent='読込失敗';c.src.hidden=true};c.img.src=r.url;c.img.alt=q+'の検索画像';c.src.href=r.page;c.src.hidden=false}
-async function json(url,signal){const r=await fetch(url,{mode:'cors',credentials:'omit',signal});if(!r.ok)throw Error(r.status);return r.json()}
-async function wiki(q,s){const p=new URLSearchParams({action:'query',generator:'search',gsrsearch:q,gsrnamespace:'0',gsrlimit:'8',prop:'pageimages|info',piprop:'thumbnail',pithumbsize:'420',inprop:'url',format:'json',formatversion:'2',origin:'*'}),d=await json('https://ja.wikipedia.org/w/api.php?'+p,s),a=(d.query?.pages||[]).filter(x=>x.thumbnail?.source).sort((x,y)=>(x.index||999)-(y.index||999)),x=a[0];return x?{url:x.thumbnail.source,page:x.fullurl||'https://ja.wikipedia.org/wiki/'+encodeURIComponent(x.title)}:null}
-async function commons(q,s){const p=new URLSearchParams({action:'query',generator:'search',gsrsearch:q,gsrnamespace:'6',gsrlimit:'12',prop:'imageinfo',iiprop:'url|mime',iiurlwidth:'420',format:'json',formatversion:'2',origin:'*'}),d=await json('https://commons.wikimedia.org/w/api.php?'+p,s);for(const x of (d.query?.pages||[]).sort((a,b)=>(a.index||999)-(b.index||999))){const i=x.imageinfo?.[0];if(i?.mime?.startsWith('image/')&&(i.thumburl||i.url))return{url:i.thumburl||i.url,page:i.descriptionurl||'https://commons.wikimedia.org/wiki/'+encodeURIComponent(x.title)}}return null}
-async function find(q,s){if(cache.has(q))return cache.get(q);let r=null;try{r=await wiki(q,s)}catch(e){if(e.name==='AbortError')throw e}if(!r)try{r=await commons(q,s)}catch(e){if(e.name==='AbortError')throw e}cache.set(q,r);return r}
-function cancel(id){const s=states.get(id);if(!s)return;clearTimeout(s.wait);clearTimeout(s.limit);s.ctrl?.abort();states.delete(id)}
-function search(i){const id=i.dataset.id,e=E[id],q=norm(i.value).join('');cancel(id);if(norm(i.value).length!==e.ans.length){clearCard(id,e.ans.length+'文字で表示');return}const s={q,wait:0,limit:0,timeout:false,ctrl:null};s.wait=setTimeout(async()=>{s.ctrl=new AbortController;s.limit=setTimeout(()=>{s.timeout=true;s.ctrl.abort()},9000);loading(id,q);try{const r=await find(q,s.ctrl.signal);if(states.get(id)===s&&norm(i.value).join('')===q)result(id,q,r)}catch(err){if((err.name!=='AbortError'||s.timeout)&&norm(i.value).join('')===q)result(id,q,null)}finally{clearTimeout(s.limit)}},500);states.set(id,s)}
-inputs.forEach(i=>{i.addEventListener('input',e=>{refresh();if(!e.isComposing)search(i)});i.addEventListener('compositionend',()=>{refresh();search(i)})});document.querySelector('#reset').onclick=()=>{inputs.forEach(i=>{cancel(i.dataset.id);i.value='';clearCard(i.dataset.id,E[i.dataset.id].ans.length+'文字で表示')});refresh();inputs[0].focus()};refresh();
-</script></body></html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>クロスワードクイズ</title>
+  <script>
+    (() => {
+      const localPreview = window.location.protocol === "file:";
+      const unlocked = localPreview || sessionStorage.getItem("game3Unlocked") === "true";
+      if (!unlocked) window.location.replace("../");
+    })();
+  </script>
+  <style>
+    :root {
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+      color: #202124;
+      background: #f4f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    button,
+    input { font: inherit; }
+
+    .page {
+      width: min(1220px, 100%);
+      margin: 0 auto;
+    }
+
+    .heading {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 44px);
+    }
+
+    .instruction,
+    .image-note,
+    .status {
+      margin: 0;
+      color: #69727d;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .game-panel {
+      padding: 24px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(35, 55, 80, 0.14);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) minmax(500px, 560px) minmax(220px, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .clue-panel {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid #dde3ec;
+      border-radius: 18px;
+      background: #fafbfd;
+    }
+
+    .clue-panel h2 {
+      margin: 0 0 14px;
+      font-size: 24px;
+    }
+
+    .clue-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .clue {
+      padding-bottom: 14px;
+      border-bottom: 1px solid #e3e7ed;
+    }
+
+    .clue:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .clue-label {
+      display: block;
+      margin-bottom: 8px;
+      line-height: 1.55;
+    }
+
+    .clue-number {
+      display: inline-grid;
+      place-items: center;
+      min-width: 26px;
+      height: 26px;
+      margin-right: 6px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: #e8eef7;
+      font-weight: 800;
+    }
+
+    .answer-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-width: 0;
+      padding: 10px 12px;
+      border: 2px solid #cfd7e3;
+      border-radius: 12px;
+      background: #fff;
+      font-size: 18px;
+    }
+
+    .answer-input:focus {
+      border-color: #4b7bec;
+      outline: 3px solid rgba(75, 123, 236, 0.18);
+    }
+
+    .answer-input.complete {
+      border-color: #5aa96f;
+      background: #f5fbf7;
+    }
+
+    .answer-input.wrong {
+      border-color: #d66b62;
+      background: #fff8f7;
+    }
+
+    .char-count {
+      min-width: 44px;
+      color: #69727d;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .board-area {
+      display: grid;
+      justify-items: center;
+      gap: 14px;
+    }
+
+    .board-title {
+      margin: 0;
+      color: #5f6975;
+      font-size: 18px;
+    }
+
+    .crossword-stage {
+      display: grid;
+      grid-template-columns: 104px auto 104px;
+      grid-template-rows: 118px auto 118px;
+      gap: 10px;
+      width: min(100%, 560px);
+      align-items: center;
+      justify-items: center;
+    }
+
+    .crossword {
+      grid-column: 2;
+      grid-row: 2;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(44px, 58px));
+      grid-template-rows: repeat(6, minmax(44px, 58px));
+      gap: 3px;
+      padding: 10px;
+      border-radius: 16px;
+      background: #263238;
+    }
+
+    .cell {
+      position: relative;
+      display: grid;
+      place-items: center;
+      border-radius: 5px;
+      background: #fff;
+      font-size: clamp(22px, 4vw, 31px);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .cell.block { background: #263238; }
+
+    .cell.conflict {
+      background: #ffe2df;
+      color: #b3261e;
+    }
+
+    .cell-number {
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      color: #59636f;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .image-card {
+      z-index: 3;
+      width: 104px;
+      margin: 0;
+      padding: 6px;
+      border: 1px solid #d9e0e9;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(35, 55, 80, 0.12);
+      overflow: hidden;
+    }
+
+    .image-card.across1 { grid-column: 2; grid-row: 1; }
+    .image-card.down1 {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+      margin-top: 5px;
+    }
+    .image-card.across2 {
+      grid-column: 3;
+      grid-row: 2;
+      align-self: start;
+      margin-top: 58px;
+    }
+    .image-card.down2 {
+      grid-column: 3;
+      grid-row: 2;
+      align-self: end;
+      margin-bottom: 6px;
+    }
+    .image-card.across3 { grid-column: 2; grid-row: 3; }
+
+    .image-frame {
+      width: 90px;
+      height: 68px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #eef2f7;
+      overflow: hidden;
+    }
+
+    .image-frame img {
+      display: none;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .image-card.ready img { display: block; }
+
+    .image-placeholder {
+      padding: 5px;
+      color: #788390;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .image-card.ready .image-placeholder,
+    .image-card.loading .image-placeholder { display: none; }
+
+    .image-spinner {
+      display: none;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(75, 123, 236, 0.2);
+      border-top-color: #4b7bec;
+      border-radius: 50%;
+      animation: image-spin .75s linear infinite;
+    }
+
+    .image-card.loading .image-spinner { display: block; }
+
+    @keyframes image-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .image-card figcaption {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 4px;
+      align-items: center;
+      margin-top: 5px;
+      font-size: 11px;
+    }
+
+    .image-word {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .image-source {
+      grid-column: 1 / -1;
+      justify-self: end;
+      color: #4b66a5;
+      font-size: 10px;
+      text-decoration: none;
+    }
+
+    .image-source:hover { text-decoration: underline; }
+
+    .image-note {
+      max-width: 540px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .status {
+      min-height: 24px;
+      text-align: center;
+    }
+
+    .status.clear {
+      color: #188038;
+      font-weight: 800;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 22px;
+    }
+
+    .reset-button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 22px;
+      background: #eef2f7;
+      color: #4f5a67;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @media (max-width: 1080px) {
+      .layout { grid-template-columns: 1fr 1fr; }
+      .board-area {
+        grid-column: 1 / -1;
+        grid-row: 1;
+      }
+    }
+
+    @media (max-width: 620px) {
+      body { padding: 14px; }
+      .game-panel { padding: 16px; }
+      .layout { grid-template-columns: 1fr; }
+      .board-area { grid-column: auto; grid-row: auto; }
+
+      .crossword-stage {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: auto;
+        width: 100%;
+      }
+
+      .crossword {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        grid-template-columns: repeat(5, minmax(42px, 54px));
+        grid-template-rows: repeat(6, minmax(42px, 54px));
+      }
+
+      .image-card {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 76px minmax(0, 1fr);
+        gap: 8px;
+        align-items: center;
+      }
+
+      .image-frame {
+        width: 76px;
+        height: 62px;
+      }
+
+      .image-card.across1,
+      .image-card.down1,
+      .image-card.across2,
+      .image-card.down2,
+      .image-card.across3 {
+        grid-column: auto;
+        grid-row: auto;
+        align-self: auto;
+        margin: 0;
+      }
+
+      .image-card.across1,
+      .image-card.across2 { grid-column: 1; }
+      .image-card.down1,
+      .image-card.down2 { grid-column: 2; }
+      .image-card.across3 {
+        grid-column: 1 / -1;
+        width: calc(50% - 5px);
+        justify-self: center;
+      }
+
+      .image-card figcaption { margin: 0; }
+    }
+
+    @media (max-width: 370px) {
+      .crossword {
+        grid-template-columns: repeat(5, 40px);
+        grid-template-rows: repeat(6, 40px);
+        gap: 2px;
+        padding: 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="heading">
+      <h1>クロスワードクイズ</h1>
+      <p class="instruction">カギに合う言葉を入力してください。入力した文字は中央のパズルへ反映されます。</p>
+    </header>
+
+    <section class="game-panel">
+      <div class="layout">
+        <section class="clue-panel" aria-labelledby="acrossTitle">
+          <h2 id="acrossTitle">ヨコのカギ</h2>
+          <div class="clue-list">
+            <div class="clue">
+              <label class="clue-label" for="across1">
+                <span class="clue-number">1</span>春に咲く代表的な花
+              </label>
+              <div class="answer-wrap">
+                <input id="across1" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="3" data-entry="across1" aria-describedby="count-across1">
+                <span class="char-count" id="count-across1">0/3</span>
+              </div>
+            </div>
+
+            <div class="clue">
+              <label class="clue-label" for="across2">
+                <span class="clue-number">3</span>寿司や刺身で人気の赤身魚
+              </label>
+              <div class="answer-wrap">
+                <input id="across2" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="3" data-entry="across2" aria-describedby="count-across2">
+                <span class="char-count" id="count-across2">0/3</span>
+              </div>
+            </div>
+
+            <div class="clue">
+              <label class="clue-label" for="across3">
+                <span class="clue-number">5</span>牛乳を表す外来語
+              </label>
+              <div class="answer-wrap">
+                <input id="across3" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="3" data-entry="across3" aria-describedby="count-across3">
+                <span class="char-count" id="count-across3">0/3</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="board-area" aria-labelledby="boardTitle">
+          <h2 class="board-title" id="boardTitle">パズル</h2>
+          <div class="crossword-stage" id="crosswordStage">
+            <div class="crossword" id="crossword" role="grid" aria-label="6行5列のクロスワード盤面"></div>
+          </div>
+          <p class="image-note">指定文字数に達すると、カギの文脈も含めて画像を検索します。いらすとやを最優先にし、見つからない場合のみWikipedia／Wikimedia Commonsを使用します。</p>
+          <p class="status" id="status" aria-live="polite">カギの入力欄は、指定された文字数まで入力できます。</p>
+        </section>
+
+        <section class="clue-panel" aria-labelledby="downTitle">
+          <h2 id="downTitle">タテのカギ</h2>
+          <div class="clue-list">
+            <div class="clue">
+              <label class="clue-label" for="down1">
+                <span class="clue-number">2</span>道路を走る乗り物
+              </label>
+              <div class="answer-wrap">
+                <input id="down1" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="3" data-entry="down1" aria-describedby="count-down1">
+                <span class="char-count" id="count-down1">0/3</span>
+              </div>
+            </div>
+
+            <div class="clue">
+              <label class="clue-label" for="down2">
+                <span class="clue-number">4</span>火をつけて明かりにするもの
+              </label>
+              <div class="answer-wrap">
+                <input id="down2" class="answer-input" type="text" inputmode="text" autocomplete="off" maxlength="4" data-entry="down2" aria-describedby="count-down2">
+                <span class="char-count" id="count-down2">0/4</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="controls">
+        <button class="reset-button" id="resetButton" type="button">入力をリセット</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const entries = {
+      across1: {
+        number: 1,
+        direction: "across",
+        clue: "春に咲く代表的な花",
+        answer: "さくら",
+        cells: [[0, 1], [0, 2], [0, 3]]
+      },
+      down1: {
+        number: 2,
+        direction: "down",
+        clue: "道路を走る乗り物",
+        answer: "くるま",
+        cells: [[0, 2], [1, 2], [2, 2]]
+      },
+      across2: {
+        number: 3,
+        direction: "across",
+        clue: "寿司や刺身で人気の赤身魚",
+        answer: "まぐろ",
+        cells: [[2, 2], [2, 3], [2, 4]]
+      },
+      down2: {
+        number: 4,
+        direction: "down",
+        clue: "火をつけて明かりにするもの",
+        answer: "ろうそく",
+        cells: [[2, 4], [3, 4], [4, 4], [5, 4]]
+      },
+      across3: {
+        number: 5,
+        direction: "across",
+        clue: "牛乳を表す外来語",
+        answer: "みるく",
+        cells: [[5, 2], [5, 3], [5, 4]]
+      }
+    };
+
+    const clueNumbers = {
+      "0-1": "1",
+      "0-2": "2",
+      "2-2": "3",
+      "2-4": "4",
+      "5-2": "5"
+    };
+
+    const rows = 6;
+    const columns = 5;
+    const crossword = document.getElementById("crossword");
+    const crosswordStage = document.getElementById("crosswordStage");
+    const status = document.getElementById("status");
+    const resetButton = document.getElementById("resetButton");
+    const inputs = [...document.querySelectorAll(".answer-input")];
+    const activeCells = new Set();
+    const cellElements = new Map();
+    const imageCards = new Map();
+    const searchCache = new Map();
+    const searchStates = new Map();
+
+    Object.values(entries).forEach(entry => {
+      entry.cells.forEach(([row, column]) => activeCells.add(`${row}-${column}`));
+    });
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        const key = `${row}-${column}`;
+        const cell = document.createElement("div");
+        cell.className = activeCells.has(key) ? "cell" : "cell block";
+        cell.setAttribute("role", "gridcell");
+
+        if (activeCells.has(key)) {
+          cell.dataset.cell = key;
+          if (clueNumbers[key]) {
+            const number = document.createElement("span");
+            number.className = "cell-number";
+            number.textContent = clueNumbers[key];
+            cell.appendChild(number);
+          }
+
+          const letter = document.createElement("span");
+          letter.className = "cell-letter";
+          cell.appendChild(letter);
+          cellElements.set(key, { cell, letter });
+        } else {
+          cell.setAttribute("aria-hidden", "true");
+        }
+
+        crossword.appendChild(cell);
+      }
+    }
+
+    Object.entries(entries).forEach(([entryId, entry]) => {
+      const figure = document.createElement("figure");
+      figure.className = `image-card ${entryId}`;
+      figure.innerHTML = `
+        <div class="image-frame">
+          <img alt="" decoding="async" referrerpolicy="no-referrer">
+          <span class="image-placeholder">${entry.answer.length}文字で表示</span>
+          <span class="image-spinner" aria-hidden="true"></span>
+        </div>
+        <figcaption>
+          <span class="clue-number">${entry.number}</span>
+          <span class="image-word">未入力</span>
+          <a class="image-source" target="_blank" rel="noopener noreferrer" hidden>出典</a>
+        </figcaption>
+      `;
+
+      crosswordStage.appendChild(figure);
+      imageCards.set(entryId, {
+        figure,
+        image: figure.querySelector("img"),
+        placeholder: figure.querySelector(".image-placeholder"),
+        word: figure.querySelector(".image-word"),
+        source: figure.querySelector(".image-source")
+      });
+    });
+
+    function normalizeText(value) {
+      return Array.from(value.replace(/[\s　]/g, ""));
+    }
+
+    function getEntryCharacters(entryId) {
+      const input = document.querySelector(`[data-entry="${entryId}"]`);
+      return normalizeText(input.value);
+    }
+
+    function updateBoard() {
+      const valuesByCell = new Map();
+
+      Object.entries(entries).forEach(([entryId, entry]) => {
+        const characters = getEntryCharacters(entryId);
+        entry.cells.forEach(([row, column], index) => {
+          const key = `${row}-${column}`;
+          const char = characters[index] ?? "";
+          if (!char) return;
+          if (!valuesByCell.has(key)) valuesByCell.set(key, []);
+          valuesByCell.get(key).push(char);
+        });
+      });
+
+      cellElements.forEach(({ cell, letter }, key) => {
+        const values = valuesByCell.get(key) ?? [];
+        const unique = [...new Set(values)];
+        cell.classList.toggle("conflict", unique.length > 1);
+        letter.textContent = unique.length === 0 ? "" : unique.length === 1 ? unique[0] : "？";
+      });
+    }
+
+    function updateInputState(input) {
+      const entryId = input.dataset.entry;
+      const entry = entries[entryId];
+      const characters = normalizeText(input.value);
+      const maxLength = entry.answer.length;
+
+      if (characters.length > maxLength) {
+        input.value = characters.slice(0, maxLength).join("");
+      }
+
+      const current = normalizeText(input.value);
+      document.getElementById(`count-${entryId}`).textContent = `${current.length}/${maxLength}`;
+
+      const filled = current.length === maxLength;
+      const correct = current.join("") === entry.answer;
+      input.classList.toggle("complete", filled && correct);
+      input.classList.toggle("wrong", filled && !correct);
+    }
+
+    function updateStatus() {
+      const allFilled = inputs.every(input => {
+        const entry = entries[input.dataset.entry];
+        return normalizeText(input.value).length === entry.answer.length;
+      });
+
+      const allCorrect = inputs.every(input => {
+        const entry = entries[input.dataset.entry];
+        return normalizeText(input.value).join("") === entry.answer;
+      });
+
+      status.classList.toggle("clear", allCorrect);
+
+      if (allCorrect) {
+        status.textContent = "クリア！ すべての答えが正解です。";
+      } else if (allFilled) {
+        status.textContent = "交差する文字や答えをもう一度確認してください。";
+      } else {
+        status.textContent = "カギの入力欄は、指定された文字数まで入力できます。";
+      }
+    }
+
+    function refresh() {
+      inputs.forEach(updateInputState);
+      updateBoard();
+      updateStatus();
+    }
+
+    function extractContextKeywords(clue) {
+      const stopWords = [
+        "もの", "こと", "ため", "代表的", "人気", "外来語", "表す", "使う",
+        "する", "した", "いる", "ある", "なる", "これ", "それ", "とき"
+      ];
+
+      let cleaned = clue
+        .replace(/[「」『』【】（）()、。・！？!?]/g, " ")
+        .replace(/(を|に|で|と|が|は|の|へ|や|から|まで|より)/g, " ");
+
+      stopWords.forEach(word => {
+        cleaned = cleaned.split(word).join(" ");
+      });
+
+      const words = cleaned
+        .split(/\s+/)
+        .map(word => word.trim())
+        .filter(word => word.length >= 2);
+
+      return [...new Set(words)].slice(0, 5);
+    }
+
+    function stripHtml(html) {
+      const documentFragment = new DOMParser().parseFromString(html || "", "text/html");
+      return documentFragment.body.textContent || "";
+    }
+
+    function normalizeSearchText(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[\s　・･「」『』【】（）()\[\]、。,.!！?？_-]/g, "");
+    }
+
+    function scoreResult(title, body, query, clue) {
+      const normalizedTitle = normalizeSearchText(title);
+      const normalizedBody = normalizeSearchText(body);
+      const normalizedQuery = normalizeSearchText(query);
+      const keywords = extractContextKeywords(clue).map(normalizeSearchText);
+      let score = 0;
+
+      if (normalizedTitle === normalizedQuery) score += 300;
+      if (normalizedTitle === `${normalizedQuery}のイラスト`) score += 280;
+      if (normalizedTitle.startsWith(normalizedQuery)) score += 180;
+      if (normalizedTitle.includes(normalizedQuery)) score += 120;
+      if (normalizedBody.includes(normalizedQuery)) score += 45;
+
+      keywords.forEach(keyword => {
+        if (normalizedTitle.includes(keyword)) score += 45;
+        if (normalizedBody.includes(keyword)) score += 12;
+      });
+
+      if (normalizedTitle.includes("まとめ")) score -= 20;
+      if (normalizedTitle.includes("セット")) score -= 10;
+
+      return score;
+    }
+
+    function setCardEmpty(entryId, message) {
+      const card = imageCards.get(entryId);
+      card.figure.classList.remove("loading", "ready");
+      card.image.removeAttribute("src");
+      card.placeholder.textContent = message;
+      card.word.textContent = "未入力";
+      card.source.hidden = true;
+      card.source.removeAttribute("href");
+      card.source.textContent = "";
+    }
+
+    function setCardLoading(entryId, query) {
+      const card = imageCards.get(entryId);
+      card.figure.classList.remove("ready");
+      card.figure.classList.add("loading");
+      card.image.removeAttribute("src");
+      card.word.textContent = query;
+      card.source.hidden = true;
+    }
+
+    function showImageResult(entryId, query, result) {
+      const card = imageCards.get(entryId);
+      card.figure.classList.remove("loading", "ready");
+      card.word.textContent = query;
+
+      if (!result) {
+        card.image.removeAttribute("src");
+        card.placeholder.textContent = "画像なし";
+        card.source.hidden = true;
+        return;
+      }
+
+      card.image.onload = () => {
+        card.figure.classList.add("ready");
+      };
+
+      card.image.onerror = () => {
+        card.figure.classList.remove("ready");
+        card.placeholder.textContent = "読込失敗";
+        card.source.hidden = true;
+      };
+
+      card.image.src = result.imageUrl;
+      card.image.alt = `${query}の検索画像`;
+      card.source.href = result.pageUrl;
+      card.source.textContent = result.sourceName;
+      card.source.hidden = false;
+    }
+
+    function jsonpRequest(url, timeoutMs = 8500) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `irasutoyaJsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement("script");
+        let settled = false;
+
+        const cleanup = () => {
+          if (script.parentNode) script.parentNode.removeChild(script);
+          try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+        };
+
+        const timer = window.setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(new Error("いらすとや検索がタイムアウトしました"));
+        }, timeoutMs);
+
+        window[callbackName] = data => {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timer);
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = () => {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timer);
+          cleanup();
+          reject(new Error("いらすとや検索を読み込めませんでした"));
+        };
+
+        const separator = url.includes("?") ? "&" : "?";
+        script.src = `${url}${separator}alt=json-in-script&callback=${encodeURIComponent(callbackName)}`;
+        document.head.appendChild(script);
+      });
+    }
+
+    function getEntryPageUrl(feedEntry) {
+      const link = (feedEntry.link || []).find(item => item.rel === "alternate");
+      return link?.href || "https://www.irasutoya.com/";
+    }
+
+    function getIrasutoyaImageUrl(feedEntry) {
+      const html = feedEntry.content?.$t || feedEntry.summary?.$t || "";
+      const parsed = new DOMParser().parseFromString(html, "text/html");
+      const image = parsed.querySelector("img[src]");
+      let imageUrl = image?.getAttribute("src") || feedEntry.media$thumbnail?.url || "";
+
+      if (!imageUrl) return "";
+      if (imageUrl.startsWith("//")) imageUrl = `https:${imageUrl}`;
+      imageUrl = imageUrl.replace(/\/s\d+(?:-c)?\//, "/s500/");
+      return imageUrl;
+    }
+
+    async function searchIrasutoya(query, clue) {
+      const endpoint = new URL("https://www.irasutoya.com/feeds/posts/default");
+      endpoint.searchParams.set("max-results", "20");
+      endpoint.searchParams.set("q", query);
+      endpoint.searchParams.set("by-date", "false");
+
+      const data = await jsonpRequest(endpoint.toString());
+      const feedEntries = data?.feed?.entry || [];
+      const ranked = feedEntries
+        .map((feedEntry, index) => {
+          const title = feedEntry.title?.$t || "";
+          const html = feedEntry.content?.$t || feedEntry.summary?.$t || "";
+          const body = stripHtml(html);
+          return {
+            feedEntry,
+            index,
+            score: scoreResult(title, body, query, clue)
+          };
+        })
+        .sort((left, right) => right.score - left.score || left.index - right.index);
+
+      for (const candidate of ranked) {
+        const imageUrl = getIrasutoyaImageUrl(candidate.feedEntry);
+        if (!imageUrl) continue;
+        return {
+          imageUrl,
+          pageUrl: getEntryPageUrl(candidate.feedEntry),
+          sourceName: "いらすとや"
+        };
+      }
+
+      return null;
+    }
+
+    async function fetchJson(url, signal) {
+      const response = await fetch(url, {
+        mode: "cors",
+        credentials: "omit",
+        signal
+      });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    }
+
+    function buildContextQuery(query, clue) {
+      const keywords = extractContextKeywords(clue);
+      return [query, ...keywords].join(" ");
+    }
+
+    async function searchWikipediaOnce(searchText, query, clue, signal) {
+      const params = new URLSearchParams({
+        action: "query",
+        generator: "search",
+        gsrsearch: searchText,
+        gsrnamespace: "0",
+        gsrlimit: "12",
+        prop: "pageimages|info|extracts",
+        piprop: "thumbnail",
+        pithumbsize: "480",
+        inprop: "url",
+        exintro: "1",
+        explaintext: "1",
+        exchars: "500",
+        format: "json",
+        formatversion: "2",
+        origin: "*"
+      });
+
+      const data = await fetchJson(`https://ja.wikipedia.org/w/api.php?${params}`, signal);
+      const pages = (data.query?.pages || [])
+        .filter(page => page.thumbnail?.source)
+        .map((page, index) => ({
+          page,
+          index,
+          score: scoreResult(page.title, page.extract || "", query, clue)
+        }))
+        .sort((left, right) => right.score - left.score || left.index - right.index);
+
+      const selected = pages[0]?.page;
+      if (!selected) return null;
+
+      return {
+        imageUrl: selected.thumbnail.source,
+        pageUrl: selected.fullurl || `https://ja.wikipedia.org/wiki/${encodeURIComponent(selected.title)}`,
+        sourceName: "Wikipedia"
+      };
+    }
+
+    async function searchWikipedia(query, clue, signal) {
+      const contextQuery = buildContextQuery(query, clue);
+      let result = await searchWikipediaOnce(contextQuery, query, clue, signal);
+      if (!result && contextQuery !== query) {
+        result = await searchWikipediaOnce(query, query, clue, signal);
+      }
+      return result;
+    }
+
+    async function searchCommonsOnce(searchText, query, clue, signal) {
+      const params = new URLSearchParams({
+        action: "query",
+        generator: "search",
+        gsrsearch: searchText,
+        gsrnamespace: "6",
+        gsrlimit: "20",
+        prop: "imageinfo",
+        iiprop: "url|mime|extmetadata",
+        iiurlwidth: "480",
+        format: "json",
+        formatversion: "2",
+        origin: "*"
+      });
+
+      const data = await fetchJson(`https://commons.wikimedia.org/w/api.php?${params}`, signal);
+      const candidates = [];
+
+      for (const [index, page] of (data.query?.pages || []).entries()) {
+        const imageInfo = page.imageinfo?.[0];
+        if (!imageInfo?.mime?.startsWith("image/")) continue;
+        const imageUrl = imageInfo.thumburl || imageInfo.url;
+        if (!imageUrl) continue;
+
+        const metadata = imageInfo.extmetadata || {};
+        const body = [
+          metadata.ImageDescription?.value,
+          metadata.ObjectName?.value,
+          metadata.Categories?.value
+        ].filter(Boolean).map(stripHtml).join(" ");
+
+        candidates.push({
+          page,
+          imageInfo,
+          imageUrl,
+          index,
+          score: scoreResult(page.title, body, query, clue)
+        });
+      }
+
+      candidates.sort((left, right) => right.score - left.score || left.index - right.index);
+      const selected = candidates[0];
+      if (!selected) return null;
+
+      return {
+        imageUrl: selected.imageUrl,
+        pageUrl: selected.imageInfo.descriptionurl || `https://commons.wikimedia.org/wiki/${encodeURIComponent(selected.page.title)}`,
+        sourceName: "Wikimedia Commons"
+      };
+    }
+
+    async function searchCommons(query, clue, signal) {
+      const contextQuery = buildContextQuery(query, clue);
+      let result = await searchCommonsOnce(contextQuery, query, clue, signal);
+      if (!result && contextQuery !== query) {
+        result = await searchCommonsOnce(query, query, clue, signal);
+      }
+      return result;
+    }
+
+    async function findImage(query, clue, signal) {
+      const cacheKey = `${query}\n${clue}`;
+      if (searchCache.has(cacheKey)) return searchCache.get(cacheKey);
+
+      let result = null;
+
+      try {
+        result = await searchIrasutoya(query, clue);
+      } catch (error) {
+        console.warn("いらすとや検索に失敗しました", error);
+      }
+
+      if (!result) {
+        try {
+          result = await searchWikipedia(query, clue, signal);
+        } catch (error) {
+          if (error.name === "AbortError") throw error;
+          console.warn("Wikipedia検索に失敗しました", error);
+        }
+      }
+
+      if (!result) {
+        try {
+          result = await searchCommons(query, clue, signal);
+        } catch (error) {
+          if (error.name === "AbortError") throw error;
+          console.warn("Wikimedia Commons検索に失敗しました", error);
+        }
+      }
+
+      searchCache.set(cacheKey, result);
+      return result;
+    }
+
+    function cancelSearch(entryId) {
+      const state = searchStates.get(entryId);
+      if (!state) return;
+      window.clearTimeout(state.delayTimer);
+      window.clearTimeout(state.timeoutTimer);
+      state.controller?.abort();
+      searchStates.delete(entryId);
+    }
+
+    function scheduleImageSearch(input) {
+      const entryId = input.dataset.entry;
+      const entry = entries[entryId];
+      const query = normalizeText(input.value).join("");
+      cancelSearch(entryId);
+
+      if (normalizeText(input.value).length !== entry.answer.length) {
+        setCardEmpty(entryId, `${entry.answer.length}文字で表示`);
+        return;
+      }
+
+      const state = {
+        requestId: Symbol(entryId),
+        delayTimer: 0,
+        timeoutTimer: 0,
+        controller: null,
+        timedOut: false
+      };
+      searchStates.set(entryId, state);
+
+      state.delayTimer = window.setTimeout(async () => {
+        const currentState = searchStates.get(entryId);
+        if (currentState !== state) return;
+
+        setCardLoading(entryId, query);
+        state.controller = new AbortController();
+        state.timeoutTimer = window.setTimeout(() => {
+          state.timedOut = true;
+          state.controller?.abort();
+        }, 18000);
+
+        try {
+          const result = await findImage(query, entry.clue, state.controller.signal);
+          if (searchStates.get(entryId) !== state) return;
+          showImageResult(entryId, query, result);
+        } catch (error) {
+          if (searchStates.get(entryId) !== state) return;
+          showImageResult(entryId, query, null);
+        } finally {
+          window.clearTimeout(state.timeoutTimer);
+          if (searchStates.get(entryId) === state) searchStates.delete(entryId);
+        }
+      }, 500);
+    }
+
+    inputs.forEach(input => {
+      input.addEventListener("input", event => {
+        refresh();
+        if (!event.isComposing) scheduleImageSearch(input);
+      });
+
+      input.addEventListener("compositionend", () => {
+        refresh();
+        scheduleImageSearch(input);
+      });
+    });
+
+    resetButton.addEventListener("click", () => {
+      inputs.forEach(input => {
+        cancelSearch(input.dataset.entry);
+        input.value = "";
+        setCardEmpty(input.dataset.entry, `${entries[input.dataset.entry].answer.length}文字で表示`);
+      });
+
+      refresh();
+      inputs[0].focus();
+    });
+
+    refresh();
+  </script>
+</body>
+</html>
