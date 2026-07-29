@@ -1,52 +1,52 @@
 (() => {
-  const removedCharacter = "こ";
-  const specialId = "e5";
-  const specialAnswer = "こけし";
+  const removedCharacter = "し";
+  const specialId = "e1";
+  const specialAnswer = "しない";
 
   const shapes = [
     {
       rows: 6,
       cols: 7,
       cells: {
-        e1: [[3, 3], [4, 3], [5, 3]],
-        e2: [[2, 5], [2, 6]],
-        e3: [[4, 2], [4, 3], [4, 4], [4, 5]],
-        e4: [[1, 5], [2, 5], [3, 5], [4, 5]],
-        e5: [[0, 6], [1, 6], [2, 6]]
+        e1: [[1, 2], [1, 3], [1, 4]],
+        e2: [[1, 2], [2, 2], [3, 2]],
+        e3: [[1, 3], [2, 3]],
+        e4: [[1, 4], [2, 4], [3, 4]],
+        e5: [[2, 4], [2, 5]]
       }
     },
     {
       rows: 6,
       cols: 7,
       cells: {
-        e1: [[2, 2], [3, 2], [4, 2], [5, 2]],
-        e2: [[4, 5], [4, 6]],
-        e3: [[1, 5], [2, 5], [3, 5], [4, 5]],
-        e4: [[4, 2], [4, 3], [4, 4], [4, 5]],
-        e5: [[2, 6], [3, 6], [4, 6]]
+        e1: [[1, 2], [1, 3], [1, 4]],
+        e2: [[1, 2], [2, 2], [3, 2]],
+        e3: [[1, 3], [2, 3]],
+        e4: [[1, 4], [2, 4], [3, 4]],
+        e5: [[2, 4], [2, 5]]
       }
     }
   ];
 
   const stages = [
     {
-      e1: { number: 1, clue: "離れた相手に、こえで近況を伝える手段", answer: "でんわ" },
-      e2: { number: 2, clue: "表面をこけに覆われているもの", answer: "いし" },
-      e3: { number: 3, clue: "こてを使う武道", answer: "けんどう" },
-      e4: { number: 4, clue: "こえを売る仕事", answer: "せいゆう" },
-      e5: {
-        number: 5,
-        clue: "こしがなく、手足もない郷土人形",
-        answer: "こけし",
-        fallbackImage: "./kokeshi.svg"
-      }
+      e1: {
+        number: 1,
+        clue: "棒で打つとしなるもの",
+        answer: "しない",
+        fallbackImage: "./shinai.svg"
+      },
+      e2: { number: 2, clue: "白く、すしの中にあるもの", answer: "しゃり" },
+      e3: { number: 3, clue: "織ってしきものを作る、ひも状の材料", answer: "なわ" },
+      e4: { number: 4, clue: "粒や小片を集めて使う、すしの材料", answer: "いくら" },
+      e5: { number: 5, clue: "しろの中にあるもの", answer: "くら" }
     },
     {
-      e1: { number: 1, clue: "離れた相手に、えで近況を伝える手段", answer: "えはがき" },
-      e2: { number: 2, clue: "表面をけに覆われているもの", answer: "うま" },
-      e3: { number: 3, clue: "てを使う武道", answer: "けんぽう" },
-      e4: { number: 4, clue: "えを売る仕事", answer: "がしょう" },
-      e5: { number: 5, clue: "しがなく、手足もない郷土人形", answer: "だるま" }
+      e1: { number: 1, clue: "棒で打つとなるもの", answer: "たいこ" },
+      e2: { number: 2, clue: "白く、すの中にあるもの", answer: "たまご" },
+      e3: { number: 3, clue: "織ってきものを作る、ひも状の材料", answer: "いと" },
+      e4: { number: 4, clue: "粒や小片を集めて使う、すの材料", answer: "こえだ" },
+      e5: { number: 5, clue: "ろの中にあるもの", answer: "えだ" }
     }
   ];
 
@@ -105,6 +105,10 @@
       if (connected.size !== entryIds.length) {
         throw new Error(`第${stageIndexToVerify + 1}段階のすべての答えが交差する必要があります`);
       }
+    }
+
+    if (JSON.stringify(shapes[0]) !== JSON.stringify(shapes[1])) {
+      throw new Error("第1段階と第2段階の盤面配置は同一でなければなりません");
     }
 
     const specialAnswers = Object.entries(stages[0])
@@ -402,7 +406,7 @@
     renderClues();
     renderBoard();
     clearAll(false);
-    status.textContent = `カギから『${removedCharacter}』が消え、答えとパズルの配置が変わりました。`;
+    status.textContent = `カギから『${removedCharacter}』が消えました。パズルの配置はそのままで、答えが変わっています。`;
     inputs.get("e1")?.focus();
   }
 
