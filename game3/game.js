@@ -3,92 +3,108 @@
   const specialId = "e5";
   const specialAnswer = "こけし";
 
-  const shape = {
-    rows: 7,
-    cols: 7,
-    cells: {
-      e1: [[3, 3], [4, 3], [5, 3], [6, 3]],
-      e2: [[2, 5], [2, 6]],
-      e3: [[4, 2], [4, 3], [4, 4], [4, 5]],
-      e4: [[1, 5], [2, 5], [3, 5], [4, 5]],
-      e5: [[0, 6], [1, 6], [2, 6]]
+  const shapes = [
+    {
+      rows: 6,
+      cols: 7,
+      cells: {
+        e1: [[3, 3], [4, 3], [5, 3]],
+        e2: [[2, 5], [2, 6]],
+        e3: [[4, 2], [4, 3], [4, 4], [4, 5]],
+        e4: [[1, 5], [2, 5], [3, 5], [4, 5]],
+        e5: [[0, 6], [1, 6], [2, 6]]
+      }
+    },
+    {
+      rows: 6,
+      cols: 7,
+      cells: {
+        e1: [[2, 2], [3, 2], [4, 2], [5, 2]],
+        e2: [[4, 5], [4, 6]],
+        e3: [[1, 5], [2, 5], [3, 5], [4, 5]],
+        e4: [[4, 2], [4, 3], [4, 4], [4, 5]],
+        e5: [[2, 6], [3, 6], [4, 6]]
+      }
     }
-  };
+  ];
 
   const stages = [
     {
-      e1: { number: 1, clue: "四文字で、こえで知らせるもの", answer: "でんごん" },
-      e2: { number: 2, clue: "二文字で、海にあり、こいしより大きいもの", answer: "いし" },
-      e3: { number: 3, clue: "四文字で、こてを使う武道", answer: "けんどう" },
-      e4: { number: 4, clue: "四文字で、こえを売る仕事", answer: "せいゆう" },
+      e1: { number: 1, clue: "離れた相手に、こえで近況を伝える手段", answer: "でんわ" },
+      e2: { number: 2, clue: "表面をこけに覆われているもの", answer: "いし" },
+      e3: { number: 3, clue: "こてを使う武道", answer: "けんどう" },
+      e4: { number: 4, clue: "こえを売る仕事", answer: "せいゆう" },
       e5: {
         number: 5,
-        clue: "三文字で、こしがなく、手足もない郷土人形",
+        clue: "こしがなく、手足もない郷土人形",
         answer: "こけし",
         fallbackImage: "./kokeshi.svg"
       }
     },
     {
-      e1: { number: 1, clue: "四文字で、えで知らせるもの", answer: "かんばん" },
-      e2: { number: 2, clue: "二文字で、海にあり、いしより大きいもの", answer: "しま" },
-      e3: { number: 3, clue: "四文字で、てを使う武道", answer: "けんぽう" },
-      e4: { number: 4, clue: "四文字で、えを売る仕事", answer: "がしょう" },
-      e5: { number: 5, clue: "三文字で、しがなく、手足もない郷土人形", answer: "だるま" }
+      e1: { number: 1, clue: "離れた相手に、えで近況を伝える手段", answer: "えはがき" },
+      e2: { number: 2, clue: "表面をけに覆われているもの", answer: "うま" },
+      e3: { number: 3, clue: "てを使う武道", answer: "けんぽう" },
+      e4: { number: 4, clue: "えを売る仕事", answer: "がしょう" },
+      e5: { number: 5, clue: "しがなく、手足もない郷土人形", answer: "だるま" }
     }
   ];
 
   function verifyPuzzleDefinition() {
-    for (const id of Object.keys(shape.cells)) {
-      const first = stages[0][id];
-      const second = stages[1][id];
-      const positions = shape.cells[id];
+    for (const [stageIndexToVerify, stage] of stages.entries()) {
+      const shapeToVerify = shapes[stageIndexToVerify];
+      for (const id of Object.keys(shapeToVerify.cells)) {
+        const first = stages[0][id];
+        const second = stages[1][id];
+        const entry = stage[id];
+        const positions = shapeToVerify.cells[id];
 
-      if (first.clue.split(removedCharacter).join("") !== second.clue) {
-        throw new Error(`${id}: カギから「${removedCharacter}」を消した結果が一致しません`);
+        if (Array.from(entry.answer).length !== positions.length) {
+          throw new Error(`${id}: 第${stageIndexToVerify + 1}段階の答えの文字数とマス数が一致しません`);
+        }
+        if (stageIndexToVerify === 0) {
+          if (first.clue.split(removedCharacter).join("") !== second.clue) {
+            throw new Error(`${id}: カギから「${removedCharacter}」を消した結果が一致しません`);
+          }
+          if (!first.clue.includes(removedCharacter)) {
+            throw new Error(`${id}: 第1段階のカギに「${removedCharacter}」がありません`);
+          }
+          if (first.answer === second.answer) {
+            throw new Error(`${id}: 第1段階と第2段階の答えが同じです`);
+          }
+        }
       }
-      if (!first.clue.includes(removedCharacter)) {
-        throw new Error(`${id}: 第1段階のカギに「${removedCharacter}」がありません`);
-      }
-      if (Array.from(first.answer).length !== positions.length || Array.from(second.answer).length !== positions.length) {
-        throw new Error(`${id}: 答えの文字数とマス数が一致しません`);
-      }
-      if (first.answer === second.answer) {
-        throw new Error(`${id}: 第1段階と第2段階の答えが同じです`);
-      }
-    }
-
-    for (const stage of stages) {
       const values = new Map();
       for (const [id, entry] of Object.entries(stage)) {
         Array.from(entry.answer).forEach((character, index) => {
-          const key = shape.cells[id][index].join("-");
+          const key = shapeToVerify.cells[id][index].join("-");
           if (values.has(key) && values.get(key) !== character) {
             throw new Error(`${key}: 交差する文字が一致しません`);
           }
           values.set(key, character);
         });
       }
-    }
 
-    const entryIds = Object.keys(shape.cells);
-    const connected = new Set([entryIds[0]]);
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const id of entryIds) {
-        if (connected.has(id)) continue;
-        const positions = new Set(shape.cells[id].map(position => position.join("-")));
-        const touchesConnectedEntry = [...connected].some(connectedId =>
-          shape.cells[connectedId].some(position => positions.has(position.join("-")))
-        );
-        if (touchesConnectedEntry) {
-          connected.add(id);
-          changed = true;
+      const entryIds = Object.keys(shapeToVerify.cells);
+      const connected = new Set([entryIds[0]]);
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (const id of entryIds) {
+          if (connected.has(id)) continue;
+          const positions = new Set(shapeToVerify.cells[id].map(position => position.join("-")));
+          const touchesConnectedEntry = [...connected].some(connectedId =>
+            shapeToVerify.cells[connectedId].some(position => positions.has(position.join("-")))
+          );
+          if (touchesConnectedEntry) {
+            connected.add(id);
+            changed = true;
+          }
         }
       }
-    }
-    if (connected.size !== entryIds.length) {
-      throw new Error("すべての答えが交差して、1つのクロスワードになる必要があります");
+      if (connected.size !== entryIds.length) {
+        throw new Error(`第${stageIndexToVerify + 1}段階のすべての答えが交差する必要があります`);
+      }
     }
 
     const specialAnswers = Object.entries(stages[0])
@@ -106,6 +122,7 @@
 
   let stageIndex = 0;
   let entries = stages[stageIndex];
+  let shape = shapes[stageIndex];
 
   const left = document.getElementById("leftClues");
   const right = document.getElementById("rightClues");
@@ -380,10 +397,12 @@
     if (stageIndex !== 0 || !allCorrect()) return;
     stageIndex = 1;
     entries = stages[stageIndex];
+    shape = shapes[stageIndex];
     window.clearWordImageCache();
     renderClues();
+    renderBoard();
     clearAll(false);
-    status.textContent = `カギから『${removedCharacter}』が消えました。パズルの形はそのままで、答えが変わっています。`;
+    status.textContent = `カギから『${removedCharacter}』が消え、答えとパズルの配置が変わりました。`;
     inputs.get("e1")?.focus();
   }
 
