@@ -1,33 +1,39 @@
 (() => {
-  const removedCharacter = "し";
-  const specialId = "e1";
+  const removedCharacter = "こ";
+  const specialId = "e5";
+  const specialAnswer = "こけし";
 
   const shape = {
     rows: 7,
-    cols: 8,
+    cols: 7,
     cells: {
-      e1: [[2, 1], [2, 2], [2, 3]],
-      e2: [[2, 1], [3, 1], [4, 1]],
-      e3: [[5, 4], [5, 5], [5, 6]],
-      e4: [[5, 4], [4, 4], [3, 4], [2, 4]],
-      e5: [[0, 6], [0, 7]]
+      e1: [[3, 3], [4, 3], [5, 3], [6, 3]],
+      e2: [[2, 5], [2, 6]],
+      e3: [[4, 2], [4, 3], [4, 4], [4, 5]],
+      e4: [[1, 5], [2, 5], [3, 5], [4, 5]],
+      e5: [[0, 6], [1, 6], [2, 6]]
     }
   };
 
   const stages = [
     {
-      e1: { number: 1, clue: "三文字で、棒で打つとしなるもの", answer: "しない" },
-      e2: { number: 2, clue: "三文字で、しろに置かれるもの", answer: "しゃち", imageQuery: "しゃちほこ" },
-      e3: { number: 3, clue: "三文字で、食事に使うはし", answer: "おはし" },
-      e4: { number: 4, clue: "四文字で、寝るときに使うしきもの", answer: "おふとん" },
-      e5: { number: 5, clue: "二文字で、しろの上にあるもの", answer: "やね" }
+      e1: { number: 1, clue: "四文字で、こえで知らせるもの", answer: "でんごん" },
+      e2: { number: 2, clue: "二文字で、海にあり、こいしより大きいもの", answer: "いし" },
+      e3: { number: 3, clue: "四文字で、こてを使う武道", answer: "けんどう" },
+      e4: { number: 4, clue: "四文字で、こえを売る仕事", answer: "せいゆう" },
+      e5: {
+        number: 5,
+        clue: "三文字で、こしがなく、手足もない郷土人形",
+        answer: "こけし",
+        fallbackImage: "./kokeshi.svg"
+      }
     },
     {
-      e1: { number: 1, clue: "三文字で、棒で打つとなるもの", answer: "たいこ" },
-      e2: { number: 2, clue: "三文字で、ろに置かれるもの", answer: "たきぎ" },
-      e3: { number: 3, clue: "三文字で、食事に使うは", answer: "おくば" },
-      e4: { number: 4, clue: "四文字で、寝るときに使うきもの", answer: "おねまき" },
-      e5: { number: 5, clue: "二文字で、ろの上にあるもの", answer: "なべ" }
+      e1: { number: 1, clue: "四文字で、えで知らせるもの", answer: "かんばん" },
+      e2: { number: 2, clue: "二文字で、海にあり、いしより大きいもの", answer: "しま" },
+      e3: { number: 3, clue: "四文字で、てを使う武道", answer: "けんぽう" },
+      e4: { number: 4, clue: "四文字で、えを売る仕事", answer: "がしょう" },
+      e5: { number: 5, clue: "三文字で、しがなく、手足もない郷土人形", answer: "だるま" }
     }
   ];
 
@@ -40,8 +46,14 @@
       if (first.clue.split(removedCharacter).join("") !== second.clue) {
         throw new Error(`${id}: カギから「${removedCharacter}」を消した結果が一致しません`);
       }
+      if (!first.clue.includes(removedCharacter)) {
+        throw new Error(`${id}: 第1段階のカギに「${removedCharacter}」がありません`);
+      }
       if (Array.from(first.answer).length !== positions.length || Array.from(second.answer).length !== positions.length) {
         throw new Error(`${id}: 答えの文字数とマス数が一致しません`);
+      }
+      if (first.answer === second.answer) {
+        throw new Error(`${id}: 第1段階と第2段階の答えが同じです`);
       }
     }
 
@@ -58,10 +70,35 @@
       }
     }
 
-    const specialAnswers = stages.flatMap(stage => Object.values(stage).map(entry => entry.answer))
-      .filter(answer => answer === "しない" || answer === "こけし");
-    if (specialAnswers.length !== 1 || stages[0][specialId].answer !== "しない") {
-      throw new Error("特殊画像は竹刀だけでなければなりません");
+    const entryIds = Object.keys(shape.cells);
+    const connected = new Set([entryIds[0]]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const id of entryIds) {
+        if (connected.has(id)) continue;
+        const positions = new Set(shape.cells[id].map(position => position.join("-")));
+        const touchesConnectedEntry = [...connected].some(connectedId =>
+          shape.cells[connectedId].some(position => positions.has(position.join("-")))
+        );
+        if (touchesConnectedEntry) {
+          connected.add(id);
+          changed = true;
+        }
+      }
+    }
+    if (connected.size !== entryIds.length) {
+      throw new Error("すべての答えが交差して、1つのクロスワードになる必要があります");
+    }
+
+    const specialAnswers = Object.entries(stages[0])
+      .filter(([, entry]) => entry.answer === specialAnswer);
+    if (
+      specialAnswers.length !== 1 ||
+      specialAnswers[0][0] !== specialId ||
+      !specialAnswer.includes(removedCharacter)
+    ) {
+      throw new Error(`特殊画像は「${specialAnswer}」1つだけでなければなりません`);
     }
   }
 
@@ -232,9 +269,9 @@
     if (correct) {
       status.textContent = stageIndex === 0
         ? "クロスワードは完成しました。ただし、まだ終わりではありません。"
-        : "クリア！ 『し』が消えた後のクロスワードも完成です。";
+        : `クリア！ 『${removedCharacter}』が消えた後のクロスワードも完成です。`;
     } else if (stageIndex === 1) {
-      status.textContent = "『し』が消えたカギで、同じ形のクロスワードを完成させてください。";
+      status.textContent = `『${removedCharacter}』が消えたカギで、同じ形のクロスワードを完成させてください。`;
     } else if (filled) {
       status.textContent = "交差する文字や答えをもう一度確認してください。";
     } else {
@@ -261,6 +298,24 @@
     card.source.removeAttribute("href");
   }
 
+  function showFallbackImage(id, query) {
+    const card = cards.get(id);
+    const fallbackImage = entries[id].fallbackImage;
+    if (!fallbackImage) return false;
+
+    card.image.onload = () => card.figure.classList.add("ready");
+    card.image.onerror = () => {
+      card.figure.classList.remove("ready");
+      card.placeholder.textContent = "読込失敗";
+    };
+    card.image.src = fallbackImage;
+    card.image.alt = `${query}のイラスト`;
+    card.word.textContent = query;
+    card.source.hidden = true;
+    card.source.removeAttribute("href");
+    return true;
+  }
+
   function scheduleImage(id) {
     cancelSearch(id);
     const entry = entries[id];
@@ -278,6 +333,7 @@
       card.figure.classList.remove("ready");
       card.figure.classList.add("loading");
       card.word.textContent = query;
+      const hasFallback = query === entry.answer && showFallbackImage(id, query);
       state.controller = new AbortController();
 
       try {
@@ -285,7 +341,7 @@
         if (searches.get(id) !== state) return;
         card.figure.classList.remove("loading");
         if (!result) {
-          card.placeholder.textContent = "画像なし";
+          if (!hasFallback) card.placeholder.textContent = "画像なし";
           return;
         }
 
@@ -302,7 +358,7 @@
       } catch {
         if (searches.get(id) === state) {
           card.figure.classList.remove("loading");
-          card.placeholder.textContent = "画像なし";
+          if (!hasFallback) card.placeholder.textContent = "画像なし";
         }
       } finally {
         if (searches.get(id) === state) searches.delete(id);
@@ -327,7 +383,7 @@
     window.clearWordImageCache();
     renderClues();
     clearAll(false);
-    status.textContent = "カギから『し』が消えました。パズルの形はそのままで、答えが変わっています。";
+    status.textContent = `カギから『${removedCharacter}』が消えました。パズルの形はそのままで、答えが変わっています。`;
     inputs.get("e1")?.focus();
   }
 
