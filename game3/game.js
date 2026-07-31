@@ -307,30 +307,27 @@
     const correct = allCorrect();
     const filled = [...inputs].every(([id, input]) => clean(input.value).length === entries[id].answer.length);
     const finalValue = clean(finalAnswerInput.value).join("");
-    const finalReady = stageIndex === 1 && correct;
     const finalFilled = finalValue.length === Array.from(finalAnswerValue).length;
-    const finalCorrect = finalReady && finalValue === finalAnswerValue;
+    const finalCorrect = finalValue === finalAnswerValue;
+    const cleared = stageIndex === 1 && correct && finalCorrect;
 
-    finalAnswerInput.disabled = !finalReady;
     finalAnswerInput.classList.toggle("complete", finalCorrect);
-    finalAnswerInput.classList.toggle("wrong", finalReady && finalFilled && !finalCorrect);
-    status.classList.toggle("clear", finalCorrect);
+    finalAnswerInput.classList.toggle("wrong", finalFilled && !finalCorrect);
+    status.classList.toggle("clear", cleared);
     cards.get(specialId).image.title = correct && stageIndex === 0 ? "クリック" : "";
 
-    if (correct) {
-      if (stageIndex === 0) {
-        status.textContent = "クロスワードは完成しました。ただし、まだ終わりではありません。";
-      } else if (finalCorrect) {
-        status.textContent = "クリア！ 最後の言葉も完成です。";
-      } else {
-        status.textContent = "囲み内の文字を並べ替え、できる言葉を下の欄に入力してください。";
-      }
-    } else if (stageIndex === 1) {
-      status.textContent = `『${removedCharacter}』が消えて変化したカギに注意し、同じ形のクロスワードを完成させてください。`;
+    if (cleared) {
+      status.textContent = "クリア！";
+    } else if (stageIndex === 1 && correct) {
+      status.textContent = "クロスワードは正解です。最終欄も確認してください。";
+    } else if (stageIndex === 1 && finalCorrect) {
+      status.textContent = "最終欄は正解です。クロスワードも確認してください。";
+    } else if (stageIndex === 0 && correct) {
+      status.textContent = "クロスワードが完成しました。";
     } else if (filled) {
-      status.textContent = "交差する文字や答えをもう一度確認してください。";
+      status.textContent = "クロスワードの答えを確認してください。";
     } else {
-      status.textContent = "カギの入力欄は、指定された文字数まで入力できます。";
+      status.textContent = "カギの答えを入力してください。";
     }
   }
 
@@ -450,7 +447,6 @@
       inputs.get(id).value = answer;
     }
     refresh();
-    status.textContent = `カギから『${removedCharacter}』が消えました。変化したカギの答えを入れ直してください。`;
     inputs.get("e1")?.focus();
   }
 
