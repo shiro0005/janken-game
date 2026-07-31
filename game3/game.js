@@ -2,6 +2,8 @@
   const removedCharacter = "い";
   const specialId = "e3";
   const specialAnswer = "とりい";
+  const finalAnswerValue = "くりえいと";
+  const finalLetterCells = new Set(["3-4", "4-2", "4-3", "4-4", "5-5"]);
 
   const shapes = [
     {
@@ -151,6 +153,7 @@
   const board = document.getElementById("crossword");
   const stageElement = document.getElementById("crosswordStage");
   const status = document.getElementById("status");
+  const finalAnswerInput = document.getElementById("finalAnswer");
   const resetButton = document.getElementById("resetButton");
 
   const inputs = new Map();
@@ -246,6 +249,7 @@
         const element = document.createElement("div");
         element.className = active.has(key) ? "cell" : "cell block";
         if (active.has(key)) {
+          element.classList.toggle("final-letter", finalLetterCells.has(key));
           if (numbers.has(key)) {
             const number = document.createElement("span");
             number.className = "cell-number";
@@ -302,13 +306,25 @@
     updateBoard();
     const correct = allCorrect();
     const filled = [...inputs].every(([id, input]) => clean(input.value).length === entries[id].answer.length);
-    status.classList.toggle("clear", correct && stageIndex === 1);
+    const finalValue = clean(finalAnswerInput.value).join("");
+    const finalReady = stageIndex === 1 && correct;
+    const finalFilled = finalValue.length === Array.from(finalAnswerValue).length;
+    const finalCorrect = finalReady && finalValue === finalAnswerValue;
+
+    finalAnswerInput.disabled = !finalReady;
+    finalAnswerInput.classList.toggle("complete", finalCorrect);
+    finalAnswerInput.classList.toggle("wrong", finalReady && finalFilled && !finalCorrect);
+    status.classList.toggle("clear", finalCorrect);
     cards.get(specialId).image.title = correct && stageIndex === 0 ? "クリック" : "";
 
     if (correct) {
-      status.textContent = stageIndex === 0
-        ? "クロスワードは完成しました。ただし、まだ終わりではありません。"
-        : `クリア！ 『${removedCharacter}』が消えた後のクロスワードも完成です。`;
+      if (stageIndex === 0) {
+        status.textContent = "クロスワードは完成しました。ただし、まだ終わりではありません。";
+      } else if (finalCorrect) {
+        status.textContent = "クリア！ 最後の言葉も完成です。";
+      } else {
+        status.textContent = "囲み内の文字を並べ替え、できる言葉を下の欄に入力してください。";
+      }
     } else if (stageIndex === 1) {
       status.textContent = `『${removedCharacter}』が消えて変化したカギに注意し、同じ形のクロスワードを完成させてください。`;
     } else if (filled) {
@@ -411,6 +427,7 @@
       input.value = "";
       emptyCard(id);
     }
+    finalAnswerInput.value = "";
     refresh();
     if (focus) inputs.get("e1")?.focus();
   }
@@ -437,6 +454,7 @@
     inputs.get("e1")?.focus();
   }
 
+  finalAnswerInput.addEventListener("input", refresh);
   resetButton.addEventListener("click", () => clearAll());
   renderClues();
   renderCards();
