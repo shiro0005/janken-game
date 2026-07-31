@@ -150,7 +150,6 @@
   let shape = shapes[stageIndex];
   let answerSlotKeys = Array(finalLetterCellOrder.length).fill(null);
   let selectedLetterCard = null;
-  let draggedLetterCard = null;
 
   const left = document.getElementById("leftClues");
   const right = document.getElementById("rightClues");
@@ -320,35 +319,41 @@
     if (slotIndex >= 0) answerSlotKeys[slotIndex] = null;
   }
 
+  function selectLetterCard(key) {
+    selectedLetterCard = key;
+    document.querySelectorAll(".letter-card").forEach(card => {
+      const selected = card.dataset.key === key;
+      card.classList.toggle("selected", selected);
+      card.setAttribute("aria-pressed", String(selected));
+    });
+  }
+
   function createLetterCard(key, character, label, slotIndex = -1) {
     const card = document.createElement("button");
     card.type = "button";
     card.className = "letter-card";
     card.textContent = character;
     card.dataset.key = key;
-    card.draggable = true;
     card.classList.toggle("selected", selectedLetterCard === key);
+    card.setAttribute("aria-pressed", String(selectedLetterCard === key));
     card.setAttribute("aria-label", label);
     card.addEventListener("click", event => {
       event.stopPropagation();
       if (slotIndex >= 0 && selectedLetterCard && selectedLetterCard !== key) {
         placeLetterCard(selectedLetterCard, slotIndex);
         selectedLetterCard = null;
+        refresh();
       } else if (selectedLetterCard === key) {
-        returnLetterCard(key);
-        selectedLetterCard = null;
+        if (slotIndex >= 0) {
+          returnLetterCard(key);
+          selectedLetterCard = null;
+          refresh();
+        } else {
+          selectLetterCard(null);
+        }
       } else {
-        selectedLetterCard = key;
+        selectLetterCard(key);
       }
-      refresh();
-    });
-    card.addEventListener("dragstart", () => {
-      draggedLetterCard = key;
-      card.classList.add("dragging");
-    });
-    card.addEventListener("dragend", () => {
-      draggedLetterCard = null;
-      card.classList.remove("dragging");
     });
     return card;
   }
@@ -362,28 +367,18 @@
 
     if (letters.size === 0) {
       selectedLetterCard = null;
-      draggedLetterCard = null;
       letterCards.classList.remove("complete");
       letterCardsHint.textContent = "囲みのマスに文字が入ると、文字カードが現れます。";
     }
 
     if (selectedLetterCard && !letters.has(selectedLetterCard)) selectedLetterCard = null;
-    if (draggedLetterCard && !letters.has(draggedLetterCard)) draggedLetterCard = null;
     if (letters.size > 0) letterCardsHint.textContent = letters.size === finalLetterCellOrder.length
-      ? "カードを選んで枠を押すか、枠へドラッグしてください。"
+      ? "カードを選び、はめたい枠を押してください。"
       : `囲みの文字からカードを作成中です（${letters.size}/${finalLetterCellOrder.length}）。`;
     const slottedKeys = new Set(answerSlotKeys.filter(Boolean));
     finalLetterCellOrder.filter(key => letters.has(key) && !slottedKeys.has(key)).forEach(key => {
       letterCards.appendChild(createLetterCard(key, letters.get(key), `文字カード ${letters.get(key)}`));
     });
-    letterCards.ondragover = event => event.preventDefault();
-    letterCards.ondrop = event => {
-      event.preventDefault();
-      if (draggedLetterCard) returnLetterCard(draggedLetterCard);
-      draggedLetterCard = null;
-      selectedLetterCard = null;
-      refresh();
-    };
 
     answerSlotKeys.forEach((key, index) => {
       const slot = document.createElement("div");
@@ -402,14 +397,6 @@
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
         slot.click();
-      });
-      slot.addEventListener("dragover", event => event.preventDefault());
-      slot.addEventListener("drop", event => {
-        event.preventDefault();
-        if (draggedLetterCard) placeLetterCard(draggedLetterCard, index);
-        draggedLetterCard = null;
-        selectedLetterCard = null;
-        refresh();
       });
       answerSlots.appendChild(slot);
     });
@@ -555,7 +542,6 @@
     }
     answerSlotKeys = Array(finalLetterCellOrder.length).fill(null);
     selectedLetterCard = null;
-    draggedLetterCard = null;
     refresh();
     if (focus) inputs.get("e1")?.focus();
   }
