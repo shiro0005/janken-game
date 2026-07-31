@@ -37,14 +37,14 @@
         fallbackImage: "./shinai.svg"
       },
       e2: { number: 2, clue: "白く、すしの内側で見つかるもの", answer: "しゃり" },
-      e3: { number: 3, clue: "人が動きを制御するため、うしの体につけるもの", answer: "なわ" },
+      e3: { number: 3, clue: "輪切りにして焼き、はしでつかんで食べることがあるもの", answer: "なす" },
       e4: { number: 4, clue: "一つでは足りず、数多く集めて使う、すしの材料", answer: "いくら" },
       e5: { number: 5, clue: "飼育中のうしに与えるもの", answer: "くさ" }
     },
     {
       e1: { number: 1, clue: "棒で打つと、なるもの", answer: "たいこ" },
       e2: { number: 2, clue: "白く、すの内側で見つかるもの", answer: "たまご" },
-      e3: { number: 3, clue: "人が動きを制御するため、うの体につけるもの", answer: "いと" },
+      e3: { number: 3, clue: "輪切りにして焼き、はでつかんで食べることがあるもの", answer: "いか" },
       e4: { number: 4, clue: "一つでは足りず、数多く集めて使う、すの材料", answer: "こえだ" },
       e5: { number: 5, clue: "飼育中のうに与えるもの", answer: "えさ" }
     }
