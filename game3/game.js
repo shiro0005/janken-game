@@ -326,6 +326,12 @@
       card.classList.toggle("selected", selected);
       card.setAttribute("aria-pressed", String(selected));
     });
+    if (key) {
+      const character = finalLettersByCell().get(key);
+      letterCardsHint.textContent = `「${character}」を選択中です。入れたい枠を押してください。`;
+    } else {
+      letterCardsHint.textContent = "カードを選び、はめたい枠を押してください。";
+    }
   }
 
   function createLetterCard(key, character, label, slotIndex = -1) {
@@ -383,6 +389,7 @@
     answerSlotKeys.forEach((key, index) => {
       const slot = document.createElement("div");
       slot.className = "answer-slot";
+      slot.dataset.position = String(index + 1);
       slot.tabIndex = 0;
       slot.setAttribute("role", "button");
       slot.setAttribute("aria-label", `${index + 1}番目の枠${key ? `、${letters.get(key)}` : "、空き"}`);
