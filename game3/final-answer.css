@@ -27,6 +27,35 @@
   min-height: 50px;
 }
 
+.answer-slots {
+  display: grid;
+  grid-template-columns: repeat(5, 46px);
+  justify-content: center;
+  gap: 8px;
+}
+
+.answer-slot {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 50px;
+  padding: 0;
+  border: 2px dashed #9aa7b8;
+  border-radius: 10px;
+  background: #eef2f7;
+}
+
+.answer-slot:empty::after {
+  content: "";
+  width: 12px;
+  height: 2px;
+  background: #9aa7b8;
+}
+
+.answer-slot > .letter-card {
+  margin: -2px;
+}
+
 .letter-card {
   width: 46px;
   height: 50px;
@@ -56,9 +85,25 @@
   opacity: .45;
 }
 
-.letter-cards.complete .letter-card {
+.answer-slots.complete .letter-card {
   border-color: #188038;
   background: #f1fbf4;
+}
+
+@media (max-width: 420px) {
+  .letter-cards,
+  .answer-slots {
+    gap: 5px;
+  }
+
+  .answer-slots {
+    grid-template-columns: repeat(5, 42px);
+  }
+
+  .letter-card,
+  .answer-slot {
+    width: 42px;
+  }
 }
 
 .letter-cards-hint {
