@@ -166,7 +166,8 @@
   const cells = new Map();
   const searches = new Map();
 
-  const clean = value => Array.from(String(value || "").replace(/[\s　]/g, ""));
+  const isHiragana = character => /^[ぁ-ゖ]$/.test(character);
+  const clean = value => Array.from(String(value || "")).filter(isHiragana);
 
   function clueHtml(id) {
     const entry = entries[id];
@@ -176,7 +177,7 @@
           <span class="clue-number">${entry.number}</span>${entry.clue}
         </label>
         <div class="answer-wrap">
-          <input id="${id}" class="answer-input" autocomplete="off" maxlength="${entry.answer.length}">
+          <input id="${id}" class="answer-input" autocomplete="off" inputmode="text" pattern="[ぁ-ゖ]*" aria-describedby="hiraganaHelp" maxlength="${entry.answer.length}">
           <span id="count-${id}" class="char-count">0/${entry.answer.length}</span>
         </div>
       </div>
@@ -192,8 +193,9 @@
       const input = document.getElementById(id);
       inputs.set(id, input);
       input.addEventListener("input", event => {
+        if (event.isComposing) return;
         refresh();
-        if (!event.isComposing) scheduleImage(id);
+        scheduleImage(id);
       });
       input.addEventListener("compositionend", () => {
         refresh();
@@ -419,7 +421,8 @@
     for (const [id, input] of inputs) {
       const entry = entries[id];
       const characters = clean(input.value);
-      if (characters.length > entry.answer.length) input.value = characters.slice(0, entry.answer.length).join("");
+      const sanitizedValue = characters.slice(0, entry.answer.length).join("");
+      if (input.value !== sanitizedValue) input.value = sanitizedValue;
 
       const current = clean(input.value);
       const filled = current.length === entry.answer.length;
