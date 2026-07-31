@@ -295,15 +295,14 @@
     const result = new Map();
     for (const key of finalLetterCellOrder) {
       const character = cells.get(key)?.letter.textContent || "";
-      if (!character || character === "？") return null;
-      result.set(key, character);
+      if (character && character !== "？") result.set(key, character);
     }
     return result;
   }
 
   function currentCardWord() {
     const letters = finalLettersByCell();
-    if (!letters) return "";
+    if (letters.size !== finalLetterCellOrder.length) return "";
     return letterCardOrder.map(key => letters.get(key)).join("");
   }
 
@@ -318,18 +317,22 @@
     const letters = finalLettersByCell();
     letterCards.replaceChildren();
 
-    if (!letters) {
+    if (letters.size === 0) {
       selectedLetterCard = null;
       draggedLetterCard = null;
       letterCards.classList.remove("complete");
-      letterCardsHint.textContent = "囲みのマスを埋めると文字カードが現れます。";
+      letterCardsHint.textContent = "囲みのマスに文字が入ると、文字カードが現れます。";
       return;
     }
 
-    letterCardsHint.textContent = "カードを2枚選ぶと位置を入れ替えられます。ドラッグでも並べ替えられます。";
+    if (selectedLetterCard && !letters.has(selectedLetterCard)) selectedLetterCard = null;
+    if (draggedLetterCard && !letters.has(draggedLetterCard)) draggedLetterCard = null;
+    letterCardsHint.textContent = letters.size === finalLetterCellOrder.length
+      ? "カードを2枚選ぶと位置を入れ替えられます。ドラッグでも並べ替えられます。"
+      : `囲みの文字からカードを作成中です（${letters.size}/${finalLetterCellOrder.length}）。`;
     letterCards.classList.toggle("complete", currentCardWord() === finalAnswerValue);
 
-    letterCardOrder.forEach((key, index) => {
+    letterCardOrder.filter(key => letters.has(key)).forEach((key, index) => {
       const card = document.createElement("button");
       card.type = "button";
       card.className = "letter-card";
