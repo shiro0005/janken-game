@@ -1,52 +1,65 @@
 (() => {
-  const removedCharacter = "し";
-  const specialId = "e1";
-  const specialAnswer = "しない";
+  const removedCharacter = "い";
+  const specialId = "e3";
+  const specialAnswer = "とりい";
 
   const shapes = [
     {
-      rows: 6,
-      cols: 7,
+      rows: 7,
+      cols: 8,
       cells: {
-        e1: [[1, 2], [1, 3], [1, 4]],
-        e2: [[1, 2], [2, 2], [3, 2]],
-        e3: [[1, 3], [2, 3]],
-        e4: [[1, 4], [2, 4], [3, 4]],
-        e5: [[2, 4], [2, 5]]
+        e1: [[5, 4], [5, 5], [5, 6], [5, 7]],
+        e2: [[3, 4], [4, 4], [5, 4]],
+        e3: [[4, 2], [4, 3], [4, 4]],
+        e4: [[3, 4], [3, 5], [3, 6]],
+        e5: [[1, 5], [2, 5], [3, 5]]
       }
     },
     {
-      rows: 6,
-      cols: 7,
+      rows: 7,
+      cols: 8,
       cells: {
-        e1: [[1, 2], [1, 3], [1, 4]],
-        e2: [[1, 2], [2, 2], [3, 2]],
-        e3: [[1, 3], [2, 3]],
-        e4: [[1, 4], [2, 4], [3, 4]],
-        e5: [[2, 4], [2, 5]]
+        e1: [[5, 4], [5, 5], [5, 6], [5, 7]],
+        e2: [[3, 4], [4, 4], [5, 4]],
+        e3: [[4, 2], [4, 3], [4, 4]],
+        e4: [[3, 4], [3, 5], [3, 6]],
+        e5: [[1, 5], [2, 5], [3, 5]]
       }
     }
   ];
 
   const stages = [
     {
-      e1: {
-        number: 1,
-        clue: "棒で打つと、しなるもの",
-        answer: "しない",
-        fallbackImage: "./shinai.svg"
+      e1: { number: 1, clue: "いえを守るため、外側を囲むもの", answer: "がいへき" },
+      e2: { number: 2, clue: "映像と音声で、物語などを表現する作品", answer: "えいが" },
+      e5: {
+        number: 5,
+        clue: "電話・カメラ・インターネットなどの機能を持つ携帯端末",
+        answer: "すまほ"
       },
-      e2: { number: 2, clue: "白く、すしの内側で見つかるもの", answer: "しゃり" },
-      e3: { number: 3, clue: "輪切りの後に焼き、はしでつかんで食べることがあるもの", answer: "なす" },
-      e4: { number: 4, clue: "一つでは足りず、数多く集めて使う、すしの材料", answer: "いくら" },
-      e5: { number: 5, clue: "飼育中のうしに与えるもの", answer: "くさ" }
+      e3: {
+        number: 3,
+        clue: "神社の入口などに立つ、二本の柱と横木からなる門",
+        answer: "とりい",
+        fallbackImage: "./torii.svg"
+      },
+      e4: { number: 4, clue: "絵を中心に、物語や内容を伝える本", answer: "えほん" }
     },
     {
-      e1: { number: 1, clue: "棒で打つと、なるもの", answer: "たいこ" },
-      e2: { number: 2, clue: "白く、すの内側で見つかるもの", answer: "たまご" },
-      e3: { number: 3, clue: "輪切りの後に焼き、はでつかんで食べることがあるもの", answer: "いか" },
-      e4: { number: 4, clue: "一つでは足りず、数多く集めて使う、すの材料", answer: "こえだ" },
-      e5: { number: 5, clue: "飼育中のうに与えるもの", answer: "えさ" }
+      e1: { number: 1, clue: "えを守るため、外側を囲むもの", answer: "がくぶち" },
+      e2: { number: 2, clue: "映像と音声で、物語などを表現する作品", answer: "えいが" },
+      e5: {
+        number: 5,
+        clue: "電話・カメラ・インターネットなどの機能を持つ携帯端末",
+        answer: "すまほ"
+      },
+      e3: {
+        number: 3,
+        clue: "神社の入口などに立つ、二本の柱と横木からなる門",
+        answer: "とりい",
+        fallbackImage: "./torii.svg"
+      },
+      e4: { number: 4, clue: "絵を中心に、物語や内容を伝える本", answer: "えほん" }
     }
   ];
 
@@ -66,11 +79,12 @@
           if (first.clue.split(removedCharacter).join("") !== second.clue) {
             throw new Error(`${id}: カギから「${removedCharacter}」を消した結果が一致しません`);
           }
-          if (!first.clue.includes(removedCharacter)) {
-            throw new Error(`${id}: 第1段階のカギに「${removedCharacter}」がありません`);
+          const clueChanges = first.clue.includes(removedCharacter);
+          if (clueChanges && first.answer === second.answer) {
+            throw new Error(`${id}: カギが変わる場合は答えも変わる必要があります`);
           }
-          if (first.answer === second.answer) {
-            throw new Error(`${id}: 第1段階と第2段階の答えが同じです`);
+          if (!clueChanges && first.answer !== second.answer) {
+            throw new Error(`${id}: カギが変わらない場合は答えも同じでなければなりません`);
           }
         }
       }
@@ -109,6 +123,10 @@
 
     if (JSON.stringify(shapes[0]) !== JSON.stringify(shapes[1])) {
       throw new Error("第1段階と第2段階の盤面配置は同一でなければなりません");
+    }
+
+    if (!Object.values(stages[0]).some(entry => entry.clue.includes(removedCharacter))) {
+      throw new Error(`少なくとも1つのカギに「${removedCharacter}」が必要です`);
     }
 
     const specialAnswers = Object.entries(stages[0])
@@ -292,7 +310,7 @@
         ? "クロスワードは完成しました。ただし、まだ終わりではありません。"
         : `クリア！ 『${removedCharacter}』が消えた後のクロスワードも完成です。`;
     } else if (stageIndex === 1) {
-      status.textContent = `『${removedCharacter}』が消えたカギで、同じ形のクロスワードを完成させてください。`;
+      status.textContent = `『${removedCharacter}』が消えて変化したカギに注意し、同じ形のクロスワードを完成させてください。`;
     } else if (filled) {
       status.textContent = "交差する文字や答えをもう一度確認してください。";
     } else {
@@ -406,7 +424,7 @@
     renderClues();
     renderBoard();
     clearAll(false);
-    status.textContent = `カギから『${removedCharacter}』が消えました。パズルの配置はそのままで、答えが変わっています。`;
+    status.textContent = `カギから『${removedCharacter}』が消えました。変化したカギの答えを入れ直してください。`;
     inputs.get("e1")?.focus();
   }
 
