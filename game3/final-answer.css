@@ -63,7 +63,7 @@
   border-radius: 10px;
   background: #fff;
   color: #17202a;
-  cursor: grab;
+  cursor: pointer;
   font: inherit;
   font-size: 22px;
   font-weight: 800;
@@ -79,10 +79,6 @@
   border-color: #4b7bec;
   background: #edf3ff;
   transform: translateY(-3px);
-}
-
-.letter-card.dragging {
-  opacity: .45;
 }
 
 .answer-slots.complete .letter-card {
