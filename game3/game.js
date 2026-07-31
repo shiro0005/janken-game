@@ -148,7 +148,7 @@
   let stageIndex = 0;
   let entries = stages[stageIndex];
   let shape = shapes[stageIndex];
-  let letterCardOrder = [...finalLetterCellOrder];
+  let answerSlotKeys = Array(finalLetterCellOrder.length).fill(null);
   let selectedLetterCard = null;
   let draggedLetterCard = null;
 
@@ -158,6 +158,7 @@
   const stageElement = document.getElementById("crosswordStage");
   const status = document.getElementById("status");
   const letterCards = document.getElementById("letterCards");
+  const answerSlots = document.getElementById("answerSlots");
   const letterCardsHint = document.getElementById("letterCardsHint");
   const resetButton = document.getElementById("resetButton");
 
@@ -302,72 +303,118 @@
 
   function currentCardWord() {
     const letters = finalLettersByCell();
-    if (letters.size !== finalLetterCellOrder.length) return "";
-    return letterCardOrder.map(key => letters.get(key)).join("");
+    if (answerSlotKeys.some(key => !key || !letters.has(key))) return "";
+    return answerSlotKeys.map(key => letters.get(key)).join("");
   }
 
-  function swapLetterCards(firstKey, secondKey) {
-    const firstIndex = letterCardOrder.indexOf(firstKey);
-    const secondIndex = letterCardOrder.indexOf(secondKey);
-    if (firstIndex < 0 || secondIndex < 0 || firstIndex === secondIndex) return;
-    [letterCardOrder[firstIndex], letterCardOrder[secondIndex]] = [letterCardOrder[secondIndex], letterCardOrder[firstIndex]];
+  function placeLetterCard(key, targetIndex) {
+    const sourceIndex = answerSlotKeys.indexOf(key);
+    if (sourceIndex === targetIndex) return;
+    const displacedKey = answerSlotKeys[targetIndex];
+    answerSlotKeys[targetIndex] = key;
+    if (sourceIndex >= 0) answerSlotKeys[sourceIndex] = displacedKey || null;
+  }
+
+  function returnLetterCard(key) {
+    const slotIndex = answerSlotKeys.indexOf(key);
+    if (slotIndex >= 0) answerSlotKeys[slotIndex] = null;
+  }
+
+  function createLetterCard(key, character, label, slotIndex = -1) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "letter-card";
+    card.textContent = character;
+    card.dataset.key = key;
+    card.draggable = true;
+    card.classList.toggle("selected", selectedLetterCard === key);
+    card.setAttribute("aria-label", label);
+    card.addEventListener("click", event => {
+      event.stopPropagation();
+      if (slotIndex >= 0 && selectedLetterCard && selectedLetterCard !== key) {
+        placeLetterCard(selectedLetterCard, slotIndex);
+        selectedLetterCard = null;
+      } else if (selectedLetterCard === key) {
+        returnLetterCard(key);
+        selectedLetterCard = null;
+      } else {
+        selectedLetterCard = key;
+      }
+      refresh();
+    });
+    card.addEventListener("dragstart", () => {
+      draggedLetterCard = key;
+      card.classList.add("dragging");
+    });
+    card.addEventListener("dragend", () => {
+      draggedLetterCard = null;
+      card.classList.remove("dragging");
+    });
+    return card;
   }
 
   function renderLetterCards() {
     const letters = finalLettersByCell();
     letterCards.replaceChildren();
+    answerSlots.replaceChildren();
+
+    answerSlotKeys = answerSlotKeys.map(key => key && letters.has(key) ? key : null);
 
     if (letters.size === 0) {
       selectedLetterCard = null;
       draggedLetterCard = null;
       letterCards.classList.remove("complete");
       letterCardsHint.textContent = "囲みのマスに文字が入ると、文字カードが現れます。";
-      return;
     }
 
     if (selectedLetterCard && !letters.has(selectedLetterCard)) selectedLetterCard = null;
     if (draggedLetterCard && !letters.has(draggedLetterCard)) draggedLetterCard = null;
-    letterCardsHint.textContent = letters.size === finalLetterCellOrder.length
-      ? "カードを2枚選ぶと位置を入れ替えられます。ドラッグでも並べ替えられます。"
+    if (letters.size > 0) letterCardsHint.textContent = letters.size === finalLetterCellOrder.length
+      ? "カードを選んで枠を押すか、枠へドラッグしてください。"
       : `囲みの文字からカードを作成中です（${letters.size}/${finalLetterCellOrder.length}）。`;
-    letterCards.classList.toggle("complete", currentCardWord() === finalAnswerValue);
+    const slottedKeys = new Set(answerSlotKeys.filter(Boolean));
+    finalLetterCellOrder.filter(key => letters.has(key) && !slottedKeys.has(key)).forEach(key => {
+      letterCards.appendChild(createLetterCard(key, letters.get(key), `文字カード ${letters.get(key)}`));
+    });
+    letterCards.ondragover = event => event.preventDefault();
+    letterCards.ondrop = event => {
+      event.preventDefault();
+      if (draggedLetterCard) returnLetterCard(draggedLetterCard);
+      draggedLetterCard = null;
+      selectedLetterCard = null;
+      refresh();
+    };
 
-    letterCardOrder.filter(key => letters.has(key)).forEach((key, index) => {
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "letter-card";
-      card.textContent = letters.get(key);
-      card.dataset.key = key;
-      card.draggable = true;
-      card.classList.toggle("selected", selectedLetterCard === key);
-      card.setAttribute("aria-label", `${index + 1}番目の文字 ${letters.get(key)}`);
-      card.addEventListener("click", () => {
-        if (!selectedLetterCard) {
-          selectedLetterCard = key;
-        } else {
-          swapLetterCards(selectedLetterCard, key);
-          selectedLetterCard = null;
-        }
+    answerSlotKeys.forEach((key, index) => {
+      const slot = document.createElement("div");
+      slot.className = "answer-slot";
+      slot.tabIndex = 0;
+      slot.setAttribute("role", "button");
+      slot.setAttribute("aria-label", `${index + 1}番目の枠${key ? `、${letters.get(key)}` : "、空き"}`);
+      if (key) slot.appendChild(createLetterCard(key, letters.get(key), `${index + 1}番目の枠の文字 ${letters.get(key)}`, index));
+      slot.addEventListener("click", () => {
+        if (!selectedLetterCard) return;
+        placeLetterCard(selectedLetterCard, index);
+        selectedLetterCard = null;
         refresh();
       });
-      card.addEventListener("dragstart", () => {
-        draggedLetterCard = key;
-        card.classList.add("dragging");
-      });
-      card.addEventListener("dragover", event => event.preventDefault());
-      card.addEventListener("drop", event => {
+      slot.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
-        swapLetterCards(draggedLetterCard, key);
+        slot.click();
+      });
+      slot.addEventListener("dragover", event => event.preventDefault());
+      slot.addEventListener("drop", event => {
+        event.preventDefault();
+        if (draggedLetterCard) placeLetterCard(draggedLetterCard, index);
         draggedLetterCard = null;
         selectedLetterCard = null;
         refresh();
       });
-      card.addEventListener("dragend", () => {
-        draggedLetterCard = null;
-        card.classList.remove("dragging");
-      });
-      letterCards.appendChild(card);
+      answerSlots.appendChild(slot);
     });
+
+    answerSlots.classList.toggle("complete", currentCardWord() === finalAnswerValue);
   }
 
   function allCorrect() {
@@ -394,7 +441,7 @@
     const finalCorrect = currentCardWord() === finalAnswerValue;
     const cleared = stageIndex === 1 && correct && finalCorrect;
 
-    letterCards.classList.toggle("complete", finalCorrect);
+    answerSlots.classList.toggle("complete", finalCorrect);
     status.classList.toggle("clear", cleared);
     cards.get(specialId).image.title = correct && stageIndex === 0 ? "クリック" : "";
 
@@ -506,7 +553,7 @@
       input.value = "";
       emptyCard(id);
     }
-    letterCardOrder = [...finalLetterCellOrder];
+    answerSlotKeys = Array(finalLetterCellOrder.length).fill(null);
     selectedLetterCard = null;
     draggedLetterCard = null;
     refresh();
