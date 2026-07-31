@@ -417,13 +417,22 @@
 
   function activateStage2() {
     if (stageIndex !== 0 || !allCorrect()) return;
+
+    const previousAnswers = new Map(
+      [...inputs].map(([id, input]) => [id, input.value])
+    );
+    for (const id of inputs.keys()) cancelSearch(id);
+
     stageIndex = 1;
     entries = stages[stageIndex];
     shape = shapes[stageIndex];
     window.clearWordImageCache();
     renderClues();
     renderBoard();
-    clearAll(false);
+    for (const [id, answer] of previousAnswers) {
+      inputs.get(id).value = answer;
+    }
+    refresh();
     status.textContent = `カギから『${removedCharacter}』が消えました。変化したカギの答えを入れ直してください。`;
     inputs.get("e1")?.focus();
   }
