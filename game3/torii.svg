@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-labelledby="title desc">
+  <title id="title">鳥居</title>
+  <desc id="desc">朱色の鳥居のイラスト</desc>
+  <rect width="320" height="240" rx="24" fill="#eef5f7"/>
+  <path d="M38 61h244M55 82h210" stroke="#292321" stroke-width="15" stroke-linecap="round"/>
+  <path d="M48 53h224M68 75h184M91 82v128M229 82v128" stroke="#c84235" stroke-width="20" stroke-linecap="round"/>
+  <path d="M76 132h168" stroke="#c84235" stroke-width="18"/>
+  <path d="M91 210h-24M229 210h24" stroke="#292321" stroke-width="8" stroke-linecap="round"/>
+  <path d="M32 222h256" stroke="#9cb6a6" stroke-width="8" stroke-linecap="round"/>
+</svg>
