@@ -13,6 +13,7 @@
 })();
 </script>
 <link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="./final-answer.css">
 </head>
 <body>
 <main class="page">
@@ -34,6 +35,10 @@
           <div id="crossword" class="crossword" role="grid"></div>
         </div>
         <p id="status" class="status" aria-live="polite"></p>
+        <div class="final-answer">
+          <label for="finalAnswer">囲みの文字を並べ替えてできる言葉</label>
+          <input id="finalAnswer" type="text" autocomplete="off" maxlength="5" disabled>
+        </div>
       </section>
 
       <section class="clue-panel">
