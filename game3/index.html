@@ -37,8 +37,16 @@
         <p id="status" class="status" aria-live="polite"></p>
         <div class="final-answer">
           <p class="final-answer-label">囲みの文字カードを並べ替えてできる言葉</p>
+          <ol class="card-instructions" aria-label="文字カードの操作方法">
+            <li>カードを選ぶ</li>
+            <li>入れたい枠を選ぶ</li>
+            <li>5文字を並べる</li>
+          </ol>
+          <p class="card-area-label">文字カード</p>
           <div id="letterCards" class="letter-cards" aria-label="文字カード"></div>
+          <p class="card-area-label">答えの枠</p>
           <div id="answerSlots" class="answer-slots" aria-label="文字カードをはめる枠"></div>
+          <p class="card-secondary-help">やり直すときは、枠のカードをもう一度押すと戻せます。</p>
           <p id="letterCardsHint" class="letter-cards-hint">囲みのマスに文字が入ると、文字カードが現れます。</p>
         </div>
       </section>

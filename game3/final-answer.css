@@ -20,6 +20,51 @@
   text-align: center;
 }
 
+.card-instructions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin: 3px 0 7px;
+  padding: 0;
+  counter-reset: card-step;
+  list-style: none;
+}
+
+.card-instructions li {
+  display: grid;
+  align-content: center;
+  min-height: 44px;
+  padding: 5px;
+  border-radius: 9px;
+  background: #edf3ff;
+  color: #344054;
+  counter-increment: card-step;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.card-instructions li::before {
+  content: counter(card-step);
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin: 0 auto 3px;
+  border-radius: 50%;
+  background: #4b7bec;
+  color: #fff;
+  font-size: 11px;
+}
+
+.card-area-label {
+  margin: 0;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
 .letter-cards {
   display: flex;
   justify-content: center;
@@ -35,6 +80,7 @@
 }
 
 .answer-slot {
+  position: relative;
   display: grid;
   place-items: center;
   width: 46px;
@@ -43,6 +89,19 @@
   border: 2px dashed #9aa7b8;
   border-radius: 10px;
   background: #eef2f7;
+}
+
+.answer-slot::before {
+  content: attr(data-position);
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  color: #7b8797;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .answer-slot:empty::after {
@@ -107,5 +166,12 @@
   margin: 0;
   color: #667085;
   font-size: 12px;
+  text-align: center;
+}
+
+.card-secondary-help {
+  margin: 3px 0 0;
+  color: #667085;
+  font-size: 11px;
   text-align: center;
 }
