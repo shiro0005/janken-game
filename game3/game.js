@@ -3,7 +3,8 @@
   const specialId = "e3";
   const specialAnswer = "とりい";
   const finalAnswerValue = "くりえいと";
-  const finalLetterCells = new Set(["3-4", "4-2", "4-3", "4-4", "5-5"]);
+  const finalLetterCellOrder = ["3-4", "4-2", "4-3", "4-4", "5-5"];
+  const finalLetterCells = new Set(finalLetterCellOrder);
 
   const shapes = [
     {
@@ -147,13 +148,17 @@
   let stageIndex = 0;
   let entries = stages[stageIndex];
   let shape = shapes[stageIndex];
+  let letterCardOrder = [...finalLetterCellOrder];
+  let selectedLetterCard = null;
+  let draggedLetterCard = null;
 
   const left = document.getElementById("leftClues");
   const right = document.getElementById("rightClues");
   const board = document.getElementById("crossword");
   const stageElement = document.getElementById("crosswordStage");
   const status = document.getElementById("status");
-  const finalAnswerInput = document.getElementById("finalAnswer");
+  const letterCards = document.getElementById("letterCards");
+  const letterCardsHint = document.getElementById("letterCardsHint");
   const resetButton = document.getElementById("resetButton");
 
   const inputs = new Map();
@@ -283,6 +288,83 @@
       element.classList.toggle("conflict", values.length > 1);
       letter.textContent = values.length === 0 ? "" : values.length === 1 ? values[0] : "？";
     }
+    renderLetterCards();
+  }
+
+  function finalLettersByCell() {
+    const result = new Map();
+    for (const key of finalLetterCellOrder) {
+      const character = cells.get(key)?.letter.textContent || "";
+      if (!character || character === "？") return null;
+      result.set(key, character);
+    }
+    return result;
+  }
+
+  function currentCardWord() {
+    const letters = finalLettersByCell();
+    if (!letters) return "";
+    return letterCardOrder.map(key => letters.get(key)).join("");
+  }
+
+  function swapLetterCards(firstKey, secondKey) {
+    const firstIndex = letterCardOrder.indexOf(firstKey);
+    const secondIndex = letterCardOrder.indexOf(secondKey);
+    if (firstIndex < 0 || secondIndex < 0 || firstIndex === secondIndex) return;
+    [letterCardOrder[firstIndex], letterCardOrder[secondIndex]] = [letterCardOrder[secondIndex], letterCardOrder[firstIndex]];
+  }
+
+  function renderLetterCards() {
+    const letters = finalLettersByCell();
+    letterCards.replaceChildren();
+
+    if (!letters) {
+      selectedLetterCard = null;
+      draggedLetterCard = null;
+      letterCards.classList.remove("complete");
+      letterCardsHint.textContent = "囲みのマスを埋めると文字カードが現れます。";
+      return;
+    }
+
+    letterCardsHint.textContent = "カードを2枚選ぶと位置を入れ替えられます。ドラッグでも並べ替えられます。";
+    letterCards.classList.toggle("complete", currentCardWord() === finalAnswerValue);
+
+    letterCardOrder.forEach((key, index) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "letter-card";
+      card.textContent = letters.get(key);
+      card.dataset.key = key;
+      card.draggable = true;
+      card.classList.toggle("selected", selectedLetterCard === key);
+      card.setAttribute("aria-label", `${index + 1}番目の文字 ${letters.get(key)}`);
+      card.addEventListener("click", () => {
+        if (!selectedLetterCard) {
+          selectedLetterCard = key;
+        } else {
+          swapLetterCards(selectedLetterCard, key);
+          selectedLetterCard = null;
+        }
+        refresh();
+      });
+      card.addEventListener("dragstart", () => {
+        draggedLetterCard = key;
+        card.classList.add("dragging");
+      });
+      card.addEventListener("dragover", event => event.preventDefault());
+      card.addEventListener("drop", event => {
+        event.preventDefault();
+        swapLetterCards(draggedLetterCard, key);
+        draggedLetterCard = null;
+        selectedLetterCard = null;
+        refresh();
+      });
+      card.addEventListener("dragend", () => {
+        draggedLetterCard = null;
+        card.classList.remove("dragging");
+      });
+      letterCards.appendChild(card);
+    });
   }
 
   function allCorrect() {
@@ -306,13 +388,10 @@
     updateBoard();
     const correct = allCorrect();
     const filled = [...inputs].every(([id, input]) => clean(input.value).length === entries[id].answer.length);
-    const finalValue = clean(finalAnswerInput.value).join("");
-    const finalFilled = finalValue.length === Array.from(finalAnswerValue).length;
-    const finalCorrect = finalValue === finalAnswerValue;
+    const finalCorrect = currentCardWord() === finalAnswerValue;
     const cleared = stageIndex === 1 && correct && finalCorrect;
 
-    finalAnswerInput.classList.toggle("complete", finalCorrect);
-    finalAnswerInput.classList.toggle("wrong", finalFilled && !finalCorrect);
+    letterCards.classList.toggle("complete", finalCorrect);
     status.classList.toggle("clear", cleared);
     cards.get(specialId).image.title = correct && stageIndex === 0 ? "クリック" : "";
 
@@ -424,7 +503,9 @@
       input.value = "";
       emptyCard(id);
     }
-    finalAnswerInput.value = "";
+    letterCardOrder = [...finalLetterCellOrder];
+    selectedLetterCard = null;
+    draggedLetterCard = null;
     refresh();
     if (focus) inputs.get("e1")?.focus();
   }
@@ -450,7 +531,6 @@
     inputs.get("e1")?.focus();
   }
 
-  finalAnswerInput.addEventListener("input", refresh);
   resetButton.addEventListener("click", () => clearAll());
   renderClues();
   renderCards();
