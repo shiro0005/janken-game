@@ -150,6 +150,8 @@
   let shape = shapes[stageIndex];
   let answerSlotKeys = Array(finalLetterCellOrder.length).fill(null);
   let selectedLetterCard = null;
+  let game4TransitionScheduled = false;
+  let game4TransitionTimer = null;
 
   const left = document.getElementById("leftClues");
   const right = document.getElementById("rightClues");
@@ -168,6 +170,8 @@
 
   const isHiragana = character => /^[ぁ-ゖ]$/.test(character);
   const clean = value => Array.from(String(value || "")).filter(isHiragana);
+
+  sessionStorage.removeItem("game4Unlocked");
 
   function clueHtml(id) {
     const entry = entries[id];
@@ -443,7 +447,14 @@
     cards.get(specialId).image.title = correct && stageIndex === 0 ? "クリック" : "";
 
     if (cleared) {
-      status.textContent = "クリア！";
+      status.textContent = "クリア！ ゲーム4へ進みます。";
+      if (!game4TransitionScheduled) {
+        game4TransitionScheduled = true;
+        sessionStorage.setItem("game4Unlocked", "true");
+        game4TransitionTimer = window.setTimeout(() => {
+          location.href = "../game4/";
+        }, 1800);
+      }
     } else if (stageIndex === 1 && correct) {
       status.textContent = "クロスワードは正解です。最終欄も確認してください。";
     } else if (stageIndex === 1 && finalCorrect) {
@@ -545,6 +556,10 @@
   }
 
   function clearAll(focus = true) {
+    window.clearTimeout(game4TransitionTimer);
+    game4TransitionTimer = null;
+    game4TransitionScheduled = false;
+    sessionStorage.removeItem("game4Unlocked");
     for (const [id, input] of inputs) {
       cancelSearch(id);
       input.value = "";
