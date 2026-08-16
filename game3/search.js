@@ -1,5 +1,4 @@
 (() => {
-  const cache = new Map();
   const norm = value => String(value || "").normalize("NFKC").toLowerCase().replace(/[\s　・･「」『』【】（）()\[\]、。,.!！?？_-]/g, "");
   const stripHtml = html => new DOMParser().parseFromString(html || "", "text/html").body.textContent || "";
   const toHiragana = value => value.normalize("NFKC").replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
@@ -58,7 +57,7 @@
     return null;
   }
 
-  async function getJson(url,signal){const r=await fetch(url,{mode:"cors",credentials:"omit",signal});if(!r.ok)throw new Error(r.status);return r.json()}
+  async function getJson(url,signal){const r=await fetch(url,{mode:"cors",credentials:"omit",cache:"no-store",signal});if(!r.ok)throw new Error(r.status);return r.json()}
   async function searchWikipedia(query,clue,signal){
     const u=new URL("https://ja.wikipedia.org/w/api.php");Object.entries({action:"query",generator:"search",gsrsearch:`${query} ${keywords(clue).join(" ")}`,gsrnamespace:"0",gsrlimit:"12",prop:"pageimages|info|extracts",piprop:"thumbnail",pithumbsize:"480",inprop:"url",exintro:"1",explaintext:"1",exchars:"500",format:"json",formatversion:"2",origin:"*"}).forEach(([k,v])=>u.searchParams.set(k,v));
     const data=await getJson(u,signal);const pages=(data.query?.pages||[]).filter(p=>p.thumbnail?.source).sort((a,b)=>score(b.title,b.extract,query,clue)-score(a.title,a.extract,query,clue));const p=pages[0];return p?{imageUrl:p.thumbnail.source,pageUrl:p.fullurl,sourceName:"Wikipedia"}:null;
@@ -69,11 +68,9 @@
   }
 
   window.findWordImage=async(query,clue,signal)=>{
-    const key=`${query}\n${clue}`;if(cache.has(key))return cache.get(key);
     let result=null;try{result=await searchIrasutoya(query,clue,signal)}catch(e){if(e.name==="AbortError")throw e}
     if(!result)try{result=await searchWikipedia(query,clue,signal)}catch(e){if(e.name==="AbortError")throw e}
     if(!result)try{result=await searchCommons(query,clue,signal)}catch(e){if(e.name==="AbortError")throw e}
-    cache.set(key,result);return result;
+    return result;
   };
-  window.clearWordImageCache=()=>cache.clear();
 })();
