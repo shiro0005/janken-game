@@ -1,28 +1,32 @@
 (() => {
-  const gameNames = ["じゃんけん", "あるなしくいず", "くろすわーど"];
+  const gameCharacters = [
+    ["じ", "ゃ", "ん", "け", "ん", "げ", "ー", "む"],
+    ["あ", "る", "な", "し", "く", "い", "ず"],
+    ["く", "ろ", "す", "わ", "ー", "ど", "く", "い", "ず"],
+    ["なぞ", "と", "き", "けい", "さん"]
+  ];
   const examples = [
     { formula: [[1, 4], [1, 5]], answer: "けん", illustration: '<span class="emoji-illustration" aria-hidden="true">🗡️</span>' },
     { formula: [[2, 3], [3, 3]], answer: "なす", illustration: '<span class="emoji-illustration" aria-hidden="true">🍆</span>' },
     {
-      formula: [[2, 6], [2, 4], [1, 2]],
-      answer: "いしゃ",
+      formula: [[4, 4], [1, 1]],
+      answer: "けいじ",
       illustration: `
-        <svg class="doctor-illustration" viewBox="0 0 120 120" aria-hidden="true">
-          <circle cx="60" cy="37" r="21" fill="#f1c7a5"/>
-          <path d="M39 34c1-18 11-26 22-26 13 0 22 10 22 27-7-2-13-7-17-14-7 8-15 12-27 13Z" fill="#384252"/>
-          <path d="M25 112c2-36 15-53 35-53s33 17 35 53Z" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>
-          <path d="M48 61 60 78 72 61" fill="#6aa9df"/>
-          <path d="M60 78v34" stroke="#cbd5e1" stroke-width="3"/>
-          <path d="M43 68v16c0 10 7 16 17 16s17-6 17-16V68" fill="none" stroke="#455a64" stroke-width="4" stroke-linecap="round"/>
-          <circle cx="60" cy="100" r="6" fill="#455a64"/>
-          <circle cx="60" cy="100" r="2.5" fill="#b8d8f0"/>
-          <circle cx="52" cy="38" r="2" fill="#333"/>
-          <circle cx="68" cy="38" r="2" fill="#333"/>
-          <path d="M54 48q6 5 12 0" fill="none" stroke="#a05d55" stroke-width="2" stroke-linecap="round"/>
+        <svg class="detective-illustration" viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="54" cy="45" r="20" fill="#f1c7a5"/>
+          <path d="M31 39h46l-8-18H41Z" fill="#334155"/>
+          <path d="M24 39h60" stroke="#1f2937" stroke-width="7" stroke-linecap="round"/>
+          <path d="M20 112c3-34 15-51 34-51 18 0 31 17 34 51Z" fill="#b99162" stroke="#8a6845" stroke-width="3"/>
+          <path d="M45 65 54 77 63 65M54 77v35" fill="none" stroke="#f5eadc" stroke-width="4"/>
+          <circle cx="48" cy="45" r="2" fill="#333"/>
+          <circle cx="61" cy="45" r="2" fill="#333"/>
+          <path d="M49 54q5 4 10 0" fill="none" stroke="#a05d55" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="88" cy="78" r="17" fill="none" stroke="#3f5368" stroke-width="6"/>
+          <path d="m100 91 14 17" stroke="#3f5368" stroke-width="7" stroke-linecap="round"/>
         </svg>`
     }
   ];
-  const challenge = { formula: [[2, 6], [1, 1], [3, 4], [2, 2]], answer: "いじわる" };
+  const challenge = { formula: [[4, 5], [2, 4]], intermediate: "さんし", answer: "じゅうに" };
 
   const examplesElement = document.getElementById("examples");
   const challengeElement = document.getElementById("challenge");
@@ -31,13 +35,16 @@
   const resetButton = document.getElementById("resetButton");
 
   const formulaText = formula => formula.map(([game, position]) => `${game}.${position}`).join(" ＋ ");
-  const solve = formula => formula.map(([game, position]) => Array.from(gameNames[game - 1])[position - 1]).join("");
+  const solve = formula => formula.map(([game, position]) => gameCharacters[game - 1][position - 1]).join("");
   const hiraganaOnly = value => Array.from(String(value || "")).filter(character => /^[ぁ-ゖ]$/.test(character)).join("");
 
   function verifyDefinitions() {
-    [...examples, challenge].forEach(item => {
+    examples.forEach(item => {
       if (solve(item.formula) !== item.answer) throw new Error(`${formulaText(item.formula)} の答えが一致しません`);
     });
+    if (solve(challenge.formula) !== challenge.intermediate || challenge.answer !== "じゅうに") {
+      throw new Error(`${formulaText(challenge.formula)} の定義が一致しません`);
+    }
   }
 
   function render() {
