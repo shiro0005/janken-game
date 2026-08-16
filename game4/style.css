@@ -29,14 +29,15 @@ body { margin: 0; min-height: 100vh; padding: 24px; background: radial-gradient(
 body.clear-open { overflow: hidden; }
 .clear-screen { position: fixed; z-index: 10; inset: 0; display: grid; place-items: center; overflow: hidden; padding: 24px; background: radial-gradient(circle at center, rgba(31, 71, 154, .76), rgba(11, 25, 58, .94)); }
 .clear-screen[hidden] { display: none; }
-.clear-card { position: relative; z-index: 2; width: min(480px, 100%); padding: clamp(32px, 8vw, 58px) 24px 34px; border: 3px solid #ffe37d; border-radius: 28px; background: linear-gradient(145deg, #fffdf3, #fff 62%, #edf3ff); box-shadow: 0 26px 80px rgba(0, 0, 0, .38); text-align: center; animation: clear-arrive .55s cubic-bezier(.2, .9, .25, 1.25) both; }
+.clear-card { position: relative; z-index: 2; width: min(520px, 100%); padding: clamp(32px, 8vw, 54px) 24px 32px; border: 3px solid #ffe37d; border-radius: 28px; background: linear-gradient(145deg, #fffdf3, #fff 62%, #edf3ff); box-shadow: 0 26px 80px rgba(0, 0, 0, .38); text-align: center; animation: clear-arrive .55s cubic-bezier(.2, .9, .25, 1.25) both; }
 .clear-label { margin: 0; color: #7c5c00; font-size: 14px; font-weight: 900; letter-spacing: .22em; }
 .clear-icon { margin: 8px 0 0; font-size: 64px; line-height: 1; animation: clear-bounce .7s .35s ease both; }
-.clear-card h2 { margin: 7px 0 3px; color: #204dba; font-size: clamp(46px, 13vw, 72px); line-height: 1; letter-spacing: .04em; }
-.clear-message { margin: 14px 0 24px; font-size: 20px; font-weight: 900; }
-.clear-answer { display: grid; gap: 7px; width: min(290px, 100%); margin: 0 auto 26px; padding: 14px; border-radius: 14px; background: #f2f6ff; }
-.clear-answer span { color: #657080; font-weight: 800; }
-.clear-answer strong { color: #204dba; font-size: 26px; }
+.clear-card h2 { margin: 7px 0 3px; color: #204dba; font-size: clamp(42px, 11vw, 68px); line-height: 1; letter-spacing: .04em; }
+.clear-message { margin: 14px 0 22px; font-size: 20px; font-weight: 900; }
+.clear-progress { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; width: min(340px, 100%); margin: 0 auto 18px; }
+.clear-progress span { display: flex; align-items: center; justify-content: space-between; padding: 10px 13px; border: 1px solid #cbd9f7; border-radius: 12px; background: #f2f6ff; color: #334a78; font-size: 14px; font-weight: 900; letter-spacing: .06em; }
+.clear-progress b { display: grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; background: #188038; color: #fff; font-size: 15px; }
+.clear-congratulations { margin: 0 0 24px; color: #7c5c00; font-weight: 900; }
 .clear-button { min-width: 170px; padding: 12px 22px; border: 0; border-radius: 999px; background: #204dba; color: #fff; font: inherit; font-weight: 900; cursor: pointer; }
 .clear-button:hover, .clear-button:focus-visible { background: #163989; outline: 4px solid rgba(32, 77, 186, .24); }
 .confetti { position: absolute; inset: 0; pointer-events: none; }
