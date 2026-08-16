@@ -3,6 +3,14 @@
   box-shadow: inset 0 0 0 4px #f59e0b;
 }
 
+.game-number {
+  margin: 0;
+  color: #7c5c00;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+
 .input-rule {
   margin: 0 0 18px;
   padding: 10px 14px;
