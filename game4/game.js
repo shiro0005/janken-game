@@ -22,6 +22,7 @@
   const challengeElement = document.getElementById("challenge");
   const status = document.getElementById("status");
   const clearPanel = document.getElementById("clearPanel");
+  const closeClearScreen = document.getElementById("closeClearScreen");
 
   const formulaText = formula => formula.map(([game, position]) => `${game}.${position}`).join(" ＋ ");
   const solve = formula => formula.map(([game, position]) => gameCharacters[game - 1][position - 1]).join("");
@@ -83,6 +84,7 @@
     answerInput.classList.remove("correct", "wrong");
     answerInput.removeAttribute("aria-invalid");
     clearPanel.hidden = true;
+    document.body.classList.remove("clear-open");
     status.classList.remove("clear");
     status.textContent = "式が表す言葉を考えてください。";
   }
@@ -96,9 +98,19 @@
     answerInput.classList.toggle("wrong", !correct && value.length > 0);
     answerInput.setAttribute("aria-invalid", String(!correct && value.length > 0));
     clearPanel.hidden = !correct;
+    document.body.classList.toggle("clear-open", correct);
     status.classList.toggle("clear", correct);
     status.textContent = correct ? "正解です！" : value ? "答えが違います。" : "答えを入力してください。";
-    if (correct) clearPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (correct) {
+      sessionStorage.setItem("game4Cleared", "true");
+      closeClearScreen.focus();
+    }
+  }
+
+  function closeClear() {
+    clearPanel.hidden = true;
+    document.body.classList.remove("clear-open");
+    answerInput.focus();
   }
 
   verifyDefinitions();
@@ -109,5 +121,6 @@
   answerInput.addEventListener("input", sanitizeInput);
   answerInput.addEventListener("compositionend", sanitizeInput);
   answerForm.addEventListener("submit", checkAnswer);
+  closeClearScreen.addEventListener("click", closeClear);
   answerInput.focus();
 })();
