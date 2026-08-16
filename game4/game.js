@@ -12,17 +12,24 @@
       formula: [[4, 4], [1, 1]],
       answer: "けいじ",
       illustration: `
-        <svg class="detective-illustration" viewBox="0 0 120 120" aria-hidden="true">
-          <circle cx="54" cy="45" r="20" fill="#f1c7a5"/>
-          <path d="M31 39h46l-8-18H41Z" fill="#334155"/>
-          <path d="M24 39h60" stroke="#1f2937" stroke-width="7" stroke-linecap="round"/>
-          <path d="M20 112c3-34 15-51 34-51 18 0 31 17 34 51Z" fill="#b99162" stroke="#8a6845" stroke-width="3"/>
-          <path d="M45 65 54 77 63 65M54 77v35" fill="none" stroke="#f5eadc" stroke-width="4"/>
-          <circle cx="48" cy="45" r="2" fill="#333"/>
-          <circle cx="61" cy="45" r="2" fill="#333"/>
-          <path d="M49 54q5 4 10 0" fill="none" stroke="#a05d55" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="88" cy="78" r="17" fill="none" stroke="#3f5368" stroke-width="6"/>
-          <path d="m100 91 14 17" stroke="#3f5368" stroke-width="7" stroke-linecap="round"/>
+        <svg class="detective-illustration" viewBox="0 0 150 120" aria-hidden="true">
+          <path d="M34 116c2-35 15-52 40-52s38 17 40 52Z" fill="#183b66" stroke="#102a4b" stroke-width="3"/>
+          <path d="M62 67 74 82 86 67" fill="#eef5fb"/>
+          <path d="M74 82v34" stroke="#0f2744" stroke-width="4"/>
+          <circle cx="74" cy="42" r="23" fill="#f1c7a5"/>
+          <path d="M49 37h51l-9-22H58Z" fill="#183b66" stroke="#102a4b" stroke-width="3"/>
+          <path d="M42 38h64" stroke="#102a4b" stroke-width="7" stroke-linecap="round"/>
+          <path d="m74 19 4 6 7 1-5 5 1 7-7-3-7 3 1-7-5-5 7-1Z" fill="#f4c542"/>
+          <circle cx="67" cy="44" r="2.2" fill="#27303a"/>
+          <circle cx="82" cy="44" r="2.2" fill="#27303a"/>
+          <path d="M68 54q6 5 13 0" fill="none" stroke="#a05d55" stroke-width="2" stroke-linecap="round"/>
+          <path d="m93 78 5 4-2 8-7 1-5-6 3-7Z" fill="#f4c542" stroke="#9a7212" stroke-width="2"/>
+          <rect x="107" y="57" width="34" height="44" rx="4" fill="#202b38"/>
+          <rect x="112" y="62" width="24" height="34" rx="2" fill="#f7f2df"/>
+          <circle cx="124" cy="72" r="6" fill="#7aa8cd"/>
+          <path d="M116 85h16M116 90h12" stroke="#62717e" stroke-width="2"/>
+          <circle cx="27" cy="79" r="16" fill="none" stroke="#3f5368" stroke-width="6"/>
+          <path d="m38 91 13 16" stroke="#3f5368" stroke-width="7" stroke-linecap="round"/>
         </svg>`
     }
   ];
@@ -32,7 +39,6 @@
   const challengeElement = document.getElementById("challenge");
   const status = document.getElementById("status");
   const clearPanel = document.getElementById("clearPanel");
-  const resetButton = document.getElementById("resetButton");
 
   const formulaText = formula => formula.map(([game, position]) => `${game}.${position}`).join(" ＋ ");
   const solve = formula => formula.map(([game, position]) => gameCharacters[game - 1][position - 1]).join("");
@@ -56,42 +62,45 @@
     `).join("");
 
     challengeElement.innerHTML = `
-      <label class="challenge">
+      <form id="answerForm" class="challenge">
         <span class="formula">${formulaText(challenge.formula)} ＝ ？</span>
-        <input id="answerInput" class="answer-input" type="text" inputmode="text" pattern="[ぁ-ゖ]*" maxlength="4" autocomplete="off" aria-label="問題の答え">
-      </label>`;
+        <label for="answerInput" class="visually-hidden">問題の答え</label>
+        <input id="answerInput" class="answer-input" type="text" inputmode="text" pattern="[ぁ-ゖ]*" maxlength="4" autocomplete="off">
+        <button class="answer-button" type="submit">回答する</button>
+      </form>`;
   }
 
-  function checkAnswer(event) {
+  function sanitizeInput(event) {
     if (event?.isComposing) return;
     const value = hiraganaOnly(answerInput.value).slice(0, 4);
     if (answerInput.value !== value) answerInput.value = value;
-    const filled = value.length === 4;
-    const correct = value === challenge.answer;
-    answerInput.classList.toggle("correct", correct);
-    answerInput.classList.toggle("wrong", filled && !correct);
-    answerInput.setAttribute("aria-invalid", String(filled && !correct));
-    clearPanel.hidden = !correct;
-    status.classList.toggle("clear", correct);
-    status.textContent = correct ? "正解です！" : filled ? "答えが違います。" : "式が表す言葉を考えてください。";
-    if (correct) clearPanel.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  function reset() {
-    answerInput.value = "";
     answerInput.classList.remove("correct", "wrong");
     answerInput.removeAttribute("aria-invalid");
     clearPanel.hidden = true;
     status.classList.remove("clear");
     status.textContent = "式が表す言葉を考えてください。";
-    answerInput.focus();
+  }
+
+  function checkAnswer(event) {
+    event.preventDefault();
+    sanitizeInput();
+    const value = answerInput.value;
+    const correct = value === challenge.answer;
+    answerInput.classList.toggle("correct", correct);
+    answerInput.classList.toggle("wrong", !correct && value.length > 0);
+    answerInput.setAttribute("aria-invalid", String(!correct && value.length > 0));
+    clearPanel.hidden = !correct;
+    status.classList.toggle("clear", correct);
+    status.textContent = correct ? "正解です！" : value ? "答えが違います。" : "答えを入力してください。";
+    if (correct) clearPanel.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   verifyDefinitions();
   render();
   const answerInput = document.getElementById("answerInput");
-  answerInput.addEventListener("input", checkAnswer);
-  answerInput.addEventListener("compositionend", checkAnswer);
-  resetButton.addEventListener("click", reset);
+  const answerForm = document.getElementById("answerForm");
+  answerInput.addEventListener("input", sanitizeInput);
+  answerInput.addEventListener("compositionend", sanitizeInput);
+  answerForm.addEventListener("submit", checkAnswer);
   answerInput.focus();
 })();
