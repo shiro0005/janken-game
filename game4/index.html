@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>ゲームの文字計算</title>
+  <script>
+    (() => {
+      const localPreview = location.protocol === "file:";
+      if (!localPreview && sessionStorage.getItem("game4Unlocked") !== "true") location.replace("../");
+    })();
+  </script>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="page">
+    <header class="heading">
+      <p class="game-number">GAME 4</p>
+      <h1>ゲームの文字計算</h1>
+      <p>これまでのゲーム名から、式が表す言葉を見つけてください。</p>
+    </header>
+
+    <section class="panel rule-panel" aria-labelledby="ruleTitle">
+      <h2 id="ruleTitle">数字の読み方</h2>
+      <p><strong>左の数字</strong>はゲーム番号、<strong>右の数字</strong>はゲーム名の何文字目かを表します。</p>
+      <p class="rule-example"><span class="formula-token">1.1</span> なら「ゲーム1の1文字目」＝「じ」です。</p>
+      <p class="small-note">ゲーム名は、ひらがなに直して小さい文字や「ー」も1文字として数えます。</p>
+      <div id="gameWords" class="game-words" aria-label="ゲーム名の文字表"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="exampleTitle">
+      <h2 id="exampleTitle">例題</h2>
+      <p class="section-lead">式の文字を左からつなげると、答えになります。</p>
+      <div id="examples" class="example-list"></div>
+    </section>
+
+    <section class="panel challenge-panel" aria-labelledby="challengeTitle">
+      <h2 id="challengeTitle">問題</h2>
+      <p class="section-lead">答えはひらがなで入力してください。</p>
+      <div id="challenges" class="challenge-list"></div>
+      <p id="status" class="status" aria-live="polite">3つの式を解いてください。</p>
+      <button id="resetButton" class="reset-button" type="button">答えをリセット</button>
+    </section>
+
+    <section id="clearPanel" class="clear-panel" aria-live="assertive" hidden>
+      <div class="clear-icon" aria-hidden="true">✨</div>
+      <h2>ゲーム4 クリア！</h2>
+      <p>これまでのゲーム名を使った文字計算を、すべて解きました。</p>
+    </section>
+  </main>
+  <script src="./game.js"></script>
+</body>
+</html>
