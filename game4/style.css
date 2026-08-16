@@ -37,7 +37,8 @@ body.clear-open { overflow: hidden; }
 .clear-progress { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; width: min(340px, 100%); margin: 0 auto 18px; }
 .clear-progress span { display: flex; align-items: center; justify-content: space-between; padding: 10px 13px; border: 1px solid #cbd9f7; border-radius: 12px; background: #f2f6ff; color: #334a78; font-size: 14px; font-weight: 900; letter-spacing: .06em; }
 .clear-progress b { display: grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; background: #188038; color: #fff; font-size: 15px; }
-.clear-congratulations { margin: 0 0 24px; color: #7c5c00; font-weight: 900; }
+.clear-congratulations { margin: 0 0 7px; color: #7c5c00; font-weight: 900; }
+.clear-instruction { margin: 0 0 24px; color: #334a78; font-weight: 800; }
 .clear-button { min-width: 170px; padding: 12px 22px; border: 0; border-radius: 999px; background: #204dba; color: #fff; font: inherit; font-weight: 900; cursor: pointer; }
 .clear-button:hover, .clear-button:focus-visible { background: #163989; outline: 4px solid rgba(32, 77, 186, .24); }
 .confetti { position: absolute; inset: 0; pointer-events: none; }
