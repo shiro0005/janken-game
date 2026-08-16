@@ -34,11 +34,21 @@
       <p id="status" class="status" aria-live="polite">式が表す言葉を考えてください。</p>
     </section>
 
-    <section id="clearPanel" class="clear-panel" aria-live="assertive" hidden>
-      <div class="clear-icon" aria-hidden="true">✨</div>
-      <h2>ゲーム4 クリア！</h2>
-    </section>
   </main>
+
+  <section id="clearPanel" class="clear-screen" role="dialog" aria-modal="true" aria-labelledby="clearTitle" hidden>
+    <div class="confetti" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="clear-card">
+      <p class="clear-label">GAME 4</p>
+      <div class="clear-icon" aria-hidden="true">🎉</div>
+      <h2 id="clearTitle">CLEAR!</h2>
+      <p class="clear-message">謎解き計算 クリア！</p>
+      <p class="clear-answer"><span>4.5 ＋ 2.4</span><strong>じゅうに</strong></p>
+      <button id="closeClearScreen" class="clear-button" type="button">問題を振り返る</button>
+    </div>
+  </section>
   <script src="./game.js"></script>
 </body>
 </html>
