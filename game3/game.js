@@ -567,7 +567,6 @@
     stageIndex = 1;
     entries = stages[stageIndex];
     shape = shapes[stageIndex];
-    window.clearWordImageCache();
     renderClues();
     renderBoard();
     for (const [id, answer] of previousAnswers) {
