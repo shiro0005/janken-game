@@ -257,6 +257,7 @@
       inputs.get(id).value = answer;
     }
     refresh();
+    for (const id of inputs.keys()) scheduleImage(id);
     status.textContent = "カギの文章が読めるようになりました。";
     inputs.get("e1")?.focus();
   }
