@@ -1,5 +1,6 @@
 (() => {
   const removedCharacter = "い";
+  const tanukiCharacters = /[たタ]/g;
   const specialId = "e3";
   const specialAnswer = "とりい";
   const finalAnswerValue = "くりえいと";
@@ -33,11 +34,11 @@
 
   const stages = [
     {
-      e1: { number: 1, clue: "いえを守るため、外側を囲むもの", answer: "がいへき" },
+      e1: { number: 1, clue: "いえに接して、その外周を囲み、保護と見栄えの役割を持つもの", answer: "がいへき" },
       e2: { number: 2, clue: "映像と音声で、物語などを表現する作品", answer: "えいが" },
       e5: {
         number: 5,
-        clue: "電話・カメラ・インターネットなどの機能を持つ携帯端末",
+        clue: "通話・カメラ・ネットなどの機能を持つ、手のひらサイズの通信機器",
         answer: "すまほ"
       },
       e3: {
@@ -49,11 +50,11 @@
       e4: { number: 4, clue: "絵を中心に、物語や内容を伝える本", answer: "えほん" }
     },
     {
-      e1: { number: 1, clue: "えを守るため、外側を囲むもの", answer: "がくぶち" },
+      e1: { number: 1, clue: "えに接して、その外周を囲み、保護と見栄えの役割を持つもの", answer: "がくぶち" },
       e2: { number: 2, clue: "映像と音声で、物語などを表現する作品", answer: "えいが" },
       e5: {
         number: 5,
-        clue: "電話・カメラ・インターネットなどの機能を持つ携帯端末",
+        clue: "通話・カメラ・ネットなどの機能を持つ、手のひらサイズの通信機器",
         answer: "すまほ"
       },
       e3: {
@@ -66,7 +67,21 @@
     }
   ];
 
+  const tanukiClues = {
+    e1: "いたえに接たして、その外た周を囲み、保た護と見栄たえの役割を持つもたの",
+    e2: "映た像と音た声で、物た語などを表た現する作た品",
+    e3: "神た社の入た口などに立つ、二た本の柱と横た木からなるた門",
+    e4: "絵を中た心に、物た語や内た容を伝えるた本",
+    e5: "通た話・カメラ・ネッたトなどの機た能を持つ、手のひらサたイズの通た信機器"
+  };
+
   function verifyPuzzleDefinition() {
+    for (const [id, clue] of Object.entries(tanukiClues)) {
+      if (!/[たタ]/.test(clue) || clue.replace(tanukiCharacters, "") !== stages[0][id].clue) {
+        throw new Error(`${id}: タヌキのカギから「た」「タ」を消した結果が一致しません`);
+      }
+    }
+
     for (const [stageIndexToVerify, stage] of stages.entries()) {
       const shapeToVerify = shapes[stageIndexToVerify];
       for (const id of Object.keys(shapeToVerify.cells)) {
@@ -146,6 +161,7 @@
   verifyPuzzleDefinition();
 
   let stageIndex = 0;
+  let tanukiActivated = false;
   let entries = stages[stageIndex];
   let shape = shapes[stageIndex];
   let answerSlotKeys = Array(finalLetterCellOrder.length).fill(null);
@@ -162,6 +178,8 @@
   const answerSlots = document.getElementById("answerSlots");
   const letterCardsHint = document.getElementById("letterCardsHint");
   const resetButton = document.getElementById("resetButton");
+  const tanukiButton = document.getElementById("tanukiButton");
+  const tanukiImage = document.getElementById("tanukiImage");
 
   const inputs = new Map();
   const cards = new Map();
@@ -175,10 +193,11 @@
 
   function clueHtml(id) {
     const entry = entries[id];
+    const clue = tanukiActivated ? entry.clue : tanukiClues[id];
     return `
       <div class="clue">
         <label class="clue-label" for="${id}">
-          <span class="clue-number">${entry.number}</span>${entry.clue}
+          <span class="clue-number">${entry.number}</span>${clue}
         </label>
         <div class="answer-wrap">
           <input id="${id}" class="answer-input" autocomplete="off" inputmode="text" pattern="[ぁ-ゖ]*" aria-describedby="hiraganaHelp" maxlength="${entry.answer.length}">
@@ -196,6 +215,16 @@
     for (const id of Object.keys(entries)) {
       const input = document.getElementById(id);
       inputs.set(id, input);
+      input.readOnly = !tanukiActivated;
+      input.setAttribute("aria-readonly", String(!tanukiActivated));
+      input.addEventListener("focus", () => {
+        if (!tanukiActivated) showTanukiLockedError();
+      });
+      input.addEventListener("beforeinput", event => {
+        if (tanukiActivated) return;
+        event.preventDefault();
+        showTanukiLockedError();
+      });
       input.addEventListener("input", event => {
         if (event.isComposing) return;
         refresh();
@@ -206,6 +235,38 @@
         scheduleImage(id);
       });
     }
+  }
+
+  function showTanukiLockedError() {
+    status.classList.remove("clear");
+    status.textContent = "このままではカギの文章が成り立ちません。";
+  }
+
+  async function loadTanukiIllustration() {
+    if (location.protocol === "file:") {
+      tanukiImage.src = "./tanuki.png";
+      return;
+    }
+    try {
+      const response = await fetch("./tanuki.png", { cache: "no-store", credentials: "same-origin" });
+      if (!response.ok) throw new Error(`タヌキ画像を読み込めませんでした: ${response.status}`);
+      const objectUrl = URL.createObjectURL(await response.blob());
+      tanukiImage.addEventListener("load", () => URL.revokeObjectURL(objectUrl), { once: true });
+      tanukiImage.src = objectUrl;
+    } catch {
+      tanukiImage.src = "./tanuki.png";
+    }
+  }
+
+  function activateTanuki() {
+    if (tanukiActivated) return;
+    tanukiActivated = true;
+    tanukiButton.disabled = true;
+    tanukiButton.classList.add("activated");
+    renderClues();
+    refresh();
+    status.textContent = "カギの文章が読めるようになりました。";
+    inputs.get("e1")?.focus();
   }
 
   function renderCards() {
@@ -446,7 +507,9 @@
     status.classList.toggle("clear", cleared);
     cards.get(specialId).image.title = correct && stageIndex === 0 ? "クリック" : "";
 
-    if (cleared) {
+    if (!tanukiActivated) {
+      status.textContent = "";
+    } else if (cleared) {
       status.textContent = "クリア！ ゲーム4へ進みます。";
       if (!game4TransitionScheduled) {
         game4TransitionScheduled = true;
@@ -592,9 +655,11 @@
   }
 
   resetButton.addEventListener("click", () => clearAll());
+  tanukiButton.addEventListener("click", activateTanuki);
+  loadTanukiIllustration();
   renderClues();
   renderCards();
   renderBoard();
   refresh();
-  inputs.get("e1")?.focus();
+  tanukiButton.focus();
 })();
