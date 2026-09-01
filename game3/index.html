@@ -17,6 +17,7 @@
 </script>
 <link rel="stylesheet" href="./style.css">
 <link rel="stylesheet" href="./final-answer.css">
+<link rel="stylesheet" href="./tanuki.css">
 </head>
 <body>
 <main class="page">
@@ -35,7 +36,13 @@
       </section>
 
       <section class="board-area">
-        <h2>パズル</h2>
+        <div class="puzzle-heading">
+          <h2>問題</h2>
+          <!-- 出典: いらすとや「狸のイラスト」 https://www.irasutoya.com/2015/03/blog-post_346.html -->
+          <button id="tanukiButton" class="tanuki-button" type="button" aria-label="タヌキのイラスト">
+            <img id="tanukiImage" alt="タヌキのイラスト" decoding="async">
+          </button>
+        </div>
         <div id="crosswordStage" class="crossword-stage">
           <div id="crossword" class="crossword" role="grid"></div>
         </div>
