@@ -164,6 +164,16 @@
   background: #f1fbf4;
 }
 
+.answer-slots.wrong .letter-card {
+  border-color: #c5392f;
+  background: #fff5f4;
+}
+
+.answer-slots.wrong .answer-slot {
+  border-color: #c5392f;
+  background: #fff5f4;
+}
+
 @media (max-width: 420px) {
   .letter-cards,
   .answer-slots {
