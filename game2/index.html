@@ -212,6 +212,20 @@
       pointer-events: none;
     }
 
+    /* 有刺鉄線として見えるよう、フェンス素材の上部だけを拡大表示する */
+    .piece[data-piece="barbed-wire"] .piece-icon {
+      overflow: hidden;
+    }
+
+    .piece[data-piece="barbed-wire"] .piece-icon img {
+      width: 400%;
+      max-width: none;
+      height: auto;
+      align-self: start;
+      justify-self: center;
+      object-fit: initial;
+    }
+
     .zone-items .piece {
       position: relative;
       inset: auto !important;
