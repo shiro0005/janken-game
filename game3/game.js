@@ -200,9 +200,10 @@
           <span class="clue-number">${entry.number}</span>${clue}
         </label>
         <div class="answer-wrap">
-          <input id="${id}" class="answer-input" autocomplete="off" inputmode="text" pattern="[ぁ-ゖ]*" aria-describedby="hiraganaHelp" maxlength="${entry.answer.length}">
+          <input id="${id}" class="answer-input" autocomplete="off" inputmode="text" pattern="[ぁ-ゖ]*" aria-describedby="hiraganaHelp invalid-${id}" maxlength="${entry.answer.length}">
           <span id="count-${id}" class="char-count">0/${entry.answer.length}</span>
         </div>
+        <p id="invalid-${id}" class="clue-invalid" aria-live="polite" hidden>カギと回答が成立していません。</p>
       </div>
     `;
   }
@@ -330,15 +331,17 @@
 
   function updateBoard() {
     const valuesByCell = new Map();
-    for (const [id, entry] of Object.entries(entries)) {
-      const characters = clean(inputs.get(id)?.value);
-      shape.cells[id].forEach((position, index) => {
-        const character = characters[index];
-        if (!character) return;
-        const key = position.join("-");
-        if (!valuesByCell.has(key)) valuesByCell.set(key, []);
-        valuesByCell.get(key).push(character);
-      });
+    if (tanukiActivated) {
+      for (const [id] of Object.entries(entries)) {
+        const characters = clean(inputs.get(id)?.value);
+        shape.cells[id].forEach((position, index) => {
+          const character = characters[index];
+          if (!character) return;
+          const key = position.join("-");
+          if (!valuesByCell.has(key)) valuesByCell.set(key, []);
+          valuesByCell.get(key).push(character);
+        });
+      }
     }
 
     for (const [key, { element, letter }] of cells) {
@@ -466,7 +469,13 @@
       answerSlots.appendChild(slot);
     });
 
-    answerSlots.classList.toggle("complete", currentCardWord() === finalAnswerValue);
+    const cardWord = currentCardWord();
+    const finalCorrect = cardWord === finalAnswerValue;
+    const finalWrong = Boolean(cardWord) && !finalCorrect;
+    answerSlots.classList.toggle("complete", finalCorrect);
+    answerSlots.classList.toggle("wrong", finalWrong);
+    answerSlots.setAttribute("aria-invalid", String(finalWrong));
+    if (finalWrong) letterCardsHint.textContent = "並び替えた言葉が違います。カードを入れ替えてください。";
   }
 
   function allCorrect() {
@@ -489,21 +498,24 @@
       input.classList.toggle("complete", filled && correct);
       input.classList.toggle("wrong", !tanukiActivated ? current.length > 0 : filled && !correct);
       input.setAttribute("aria-invalid", String(!tanukiActivated ? current.length > 0 : filled && !correct));
+      document.getElementById(`invalid-${id}`).hidden = tanukiActivated || current.length === 0;
     }
 
     updateBoard();
     const correct = allCorrect();
     const filled = [...inputs].every(([id, input]) => clean(input.value).length === entries[id].answer.length);
     const finalCorrect = currentCardWord() === finalAnswerValue;
+    const finalWrong = Boolean(currentCardWord()) && !finalCorrect;
     const cleared = stageIndex === 1 && correct && finalCorrect;
 
     answerSlots.classList.toggle("complete", finalCorrect);
+    answerSlots.classList.toggle("wrong", finalWrong);
+    answerSlots.setAttribute("aria-invalid", String(finalWrong));
     status.classList.toggle("clear", cleared);
     cards.get(specialId).image.title = correct && stageIndex === 0 ? "クリック" : "";
 
     if (!tanukiActivated) {
-      const hasInput = [...inputs.values()].some(input => clean(input.value).length > 0);
-      status.textContent = hasInput ? "このままではカギの文章が成り立ちません。" : "";
+      status.textContent = "";
     } else if (cleared) {
       status.textContent = "クリア！ ゲーム4へ進みます。";
       if (!game4TransitionScheduled) {
@@ -513,6 +525,8 @@
           location.href = "../game4/";
         }, 1800);
       }
+    } else if (stageIndex === 1 && correct && finalWrong) {
+      status.textContent = "クロスワードは正解ですが、並び替えた言葉が違います。";
     } else if (stageIndex === 1 && correct) {
       status.textContent = "クロスワードは正解です。最終欄も確認してください。";
     } else if (stageIndex === 1 && finalCorrect) {
