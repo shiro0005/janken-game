@@ -215,16 +215,6 @@
     for (const id of Object.keys(entries)) {
       const input = document.getElementById(id);
       inputs.set(id, input);
-      input.readOnly = !tanukiActivated;
-      input.setAttribute("aria-readonly", String(!tanukiActivated));
-      input.addEventListener("focus", () => {
-        if (!tanukiActivated) showTanukiLockedError();
-      });
-      input.addEventListener("beforeinput", event => {
-        if (tanukiActivated) return;
-        event.preventDefault();
-        showTanukiLockedError();
-      });
       input.addEventListener("input", event => {
         if (event.isComposing) return;
         refresh();
@@ -235,11 +225,6 @@
         scheduleImage(id);
       });
     }
-  }
-
-  function showTanukiLockedError() {
-    status.classList.remove("clear");
-    status.textContent = "このままではカギの文章が成り立ちません。";
   }
 
   async function loadTanukiIllustration() {
@@ -260,10 +245,16 @@
 
   function activateTanuki() {
     if (tanukiActivated) return;
+    const previousAnswers = new Map(
+      [...inputs].map(([id, input]) => [id, input.value])
+    );
     tanukiActivated = true;
     tanukiButton.disabled = true;
     tanukiButton.classList.add("activated");
     renderClues();
+    for (const [id, answer] of previousAnswers) {
+      inputs.get(id).value = answer;
+    }
     refresh();
     status.textContent = "カギの文章が読めるようになりました。";
     inputs.get("e1")?.focus();
@@ -479,7 +470,9 @@
   }
 
   function allCorrect() {
-    return Object.entries(entries).every(([id, entry]) => clean(inputs.get(id)?.value).join("") === entry.answer);
+    return tanukiActivated && Object.entries(entries).every(
+      ([id, entry]) => clean(inputs.get(id)?.value).join("") === entry.answer
+    );
   }
 
   function refresh() {
@@ -491,10 +484,11 @@
 
       const current = clean(input.value);
       const filled = current.length === entry.answer.length;
-      const correct = current.join("") === entry.answer;
+      const correct = tanukiActivated && current.join("") === entry.answer;
       document.getElementById(`count-${id}`).textContent = `${current.length}/${entry.answer.length}`;
       input.classList.toggle("complete", filled && correct);
-      input.classList.toggle("wrong", filled && !correct);
+      input.classList.toggle("wrong", !tanukiActivated ? current.length > 0 : filled && !correct);
+      input.setAttribute("aria-invalid", String(!tanukiActivated ? current.length > 0 : filled && !correct));
     }
 
     updateBoard();
@@ -508,7 +502,8 @@
     cards.get(specialId).image.title = correct && stageIndex === 0 ? "クリック" : "";
 
     if (!tanukiActivated) {
-      status.textContent = "";
+      const hasInput = [...inputs.values()].some(input => clean(input.value).length > 0);
+      status.textContent = hasInput ? "このままではカギの文章が成り立ちません。" : "";
     } else if (cleared) {
       status.textContent = "クリア！ ゲーム4へ進みます。";
       if (!game4TransitionScheduled) {
@@ -570,6 +565,10 @@
 
   function scheduleImage(id) {
     cancelSearch(id);
+    if (!tanukiActivated) {
+      emptyCard(id);
+      return;
+    }
     const entry = entries[id];
     const query = clean(inputs.get(id).value).join("");
     if (query.length !== entry.answer.length) {
