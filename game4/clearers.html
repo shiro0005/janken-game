@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>クリア者一覧</title>
+  <script>
+    (() => {
+      const localPreview = location.protocol === "file:";
+      if (!localPreview && sessionStorage.getItem("game4Cleared") !== "true") location.replace("./");
+    })();
+  </script>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="page records-page">
+    <header class="heading">
+      <p class="game-number">ALL GAMES</p>
+      <h1>クリア者一覧</h1>
+      <p>すべての謎をクリアした方の記録です。</p>
+    </header>
+    <section class="panel records-panel" aria-labelledby="recordsTitle">
+      <h2 id="recordsTitle" class="visually-hidden">クリア者名とクリア日</h2>
+      <iframe id="recordsFrame" class="records-frame" title="クリア者名とクリア日の一覧"></iframe>
+      <div class="records-actions">
+        <button id="reloadRecords" class="clear-button secondary" type="button">一覧を更新</button>
+        <a class="clear-button" href="./">ゲーム4へ戻る</a>
+      </div>
+      <p id="recordsStatus" class="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <script src="./clearers.js"></script>
+</body>
+</html>
