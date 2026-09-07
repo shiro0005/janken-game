@@ -53,6 +53,16 @@
       </div>
       <p class="clear-congratulations">全ゲームクリア、おめでとうございます！</p>
       <p class="clear-instruction">この画面を見せてください</p>
+      <form id="clearRecordForm" class="clear-record-form" method="post" target="clearRecordTarget" novalidate>
+        <label for="clearName">クリア者の名前</label>
+        <div class="clear-record-controls">
+          <input id="clearName" name="name" type="text" maxlength="30" autocomplete="name" required aria-describedby="clearRecordNote clearRecordStatus">
+          <button id="saveClearRecord" type="submit">記録する</button>
+        </div>
+        <p id="clearRecordNote" class="clear-record-note">入力した名前とクリア日を記録します。</p>
+        <p id="clearRecordStatus" class="clear-record-status" aria-live="polite"></p>
+      </form>
+      <iframe id="clearRecordTarget" name="clearRecordTarget" title="クリア記録の送信結果" hidden></iframe>
       <button id="closeClearScreen" class="clear-button" type="button">最後の問題を振り返る</button>
     </div>
   </section>

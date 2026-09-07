@@ -1,4 +1,6 @@
 (() => {
+  const clearRecordEndpoint = "https://script.google.com/macros/s/AKfycbwZWUR7tHeXEwQKQG7EkdkfTnfrWnff-nOC1sTXO0MN6KGW2FcH0STtsVyx--iq-z-4/exec";
+  const clearRecordStorageKey = "game4ClearRecordSaved";
   const gameCharacters = [
     ["じ", "ゃ", "ん", "け", "ん", "げ", "ー", "む"],
     ["あ", "る", "な", "し", "く", "い", "ず"],
@@ -23,6 +25,13 @@
   const status = document.getElementById("status");
   const clearPanel = document.getElementById("clearPanel");
   const closeClearScreen = document.getElementById("closeClearScreen");
+  const clearRecordForm = document.getElementById("clearRecordForm");
+  const clearName = document.getElementById("clearName");
+  const saveClearRecord = document.getElementById("saveClearRecord");
+  const clearRecordStatus = document.getElementById("clearRecordStatus");
+  const clearRecordTarget = document.getElementById("clearRecordTarget");
+  let clearRecordPending = false;
+  let clearRecordTimer = null;
 
   const formulaText = formula => formula.map(([game, position]) => `${game}.${position}`).join(" ＋ ");
   const solve = formula => formula.map(([game, position]) => gameCharacters[game - 1][position - 1]).join("");
@@ -103,8 +112,69 @@
     status.textContent = correct ? "正解です！" : value ? "答えが違います。" : "答えを入力してください。";
     if (correct) {
       sessionStorage.setItem("game4Cleared", "true");
-      closeClearScreen.focus();
+      if (sessionStorage.getItem(clearRecordStorageKey) === "true") {
+        showRecordedState();
+        closeClearScreen.focus();
+      } else {
+        clearName.focus();
+      }
     }
+  }
+
+  function normalizeClearName(value) {
+    return String(value || "")
+      .replace(/[\u0000-\u001f\u007f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 30);
+  }
+
+  function showRecordedState() {
+    clearName.disabled = true;
+    saveClearRecord.disabled = true;
+    clearRecordStatus.className = "clear-record-status success";
+    clearRecordStatus.textContent = "名前とクリア日を記録しました。";
+  }
+
+  function finishClearRecord() {
+    if (!clearRecordPending) return;
+    clearRecordPending = false;
+    window.clearTimeout(clearRecordTimer);
+    sessionStorage.setItem(clearRecordStorageKey, "true");
+    showRecordedState();
+    closeClearScreen.focus();
+  }
+
+  function submitClearRecord(event) {
+    event.preventDefault();
+    if (clearRecordPending || sessionStorage.getItem(clearRecordStorageKey) === "true") return;
+
+    const name = normalizeClearName(clearName.value);
+    clearName.value = name;
+    if (!name) {
+      clearName.setAttribute("aria-invalid", "true");
+      clearRecordStatus.className = "clear-record-status error";
+      clearRecordStatus.textContent = "名前を入力してください。";
+      clearName.focus();
+      return;
+    }
+
+    clearName.removeAttribute("aria-invalid");
+    clearRecordForm.action = clearRecordEndpoint;
+    clearRecordPending = true;
+    clearName.readOnly = true;
+    saveClearRecord.disabled = true;
+    clearRecordStatus.className = "clear-record-status";
+    clearRecordStatus.textContent = "記録しています…";
+    clearRecordTimer = window.setTimeout(() => {
+      if (!clearRecordPending) return;
+      clearRecordPending = false;
+      clearName.readOnly = false;
+      saveClearRecord.disabled = false;
+      clearRecordStatus.className = "clear-record-status error";
+      clearRecordStatus.textContent = "記録できませんでした。もう一度お試しください。";
+    }, 15000);
+    clearRecordForm.submit();
   }
 
   function closeClear() {
@@ -122,5 +192,13 @@
   answerInput.addEventListener("compositionend", sanitizeInput);
   answerForm.addEventListener("submit", checkAnswer);
   closeClearScreen.addEventListener("click", closeClear);
+  clearRecordForm.addEventListener("submit", submitClearRecord);
+  clearName.addEventListener("input", () => {
+    if (clearRecordPending) return;
+    clearName.removeAttribute("aria-invalid");
+    clearRecordStatus.className = "clear-record-status";
+    clearRecordStatus.textContent = "";
+  });
+  clearRecordTarget.addEventListener("load", finishClearRecord);
   answerInput.focus();
 })();
